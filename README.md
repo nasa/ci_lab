@@ -18,7 +18,7 @@ Dependence on cfe platform config header is undesirable, and the check is not en
 
 ## Getting Help
 
-The cFS community page http://coreflightsystem.org should be your first stop for getting help. Please post questions to http://coreflightsystem.org/questions/. There is also a forum at http://coreflightsystem.org/forums/ for more general discussions.
+For best results, submit issues:questions or issues:help wanted requests at https://github.com/nasa/cFS.
 
 Official cFS page: http://cfs.gsfc.nasa.gov
 
