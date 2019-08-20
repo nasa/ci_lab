@@ -45,6 +45,10 @@
 /*
 ** Required header files...
 */
+
+/* network_includes requires an OS to be defined */
+#define _LINUX_OS_
+
 #include "network_includes.h"
 #include "common_types.h"
 #include "cfe_error.h"
