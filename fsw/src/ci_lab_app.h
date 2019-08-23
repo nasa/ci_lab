@@ -23,20 +23,6 @@
 ** Purpose:
 **   This file is main hdr file for the Command Ingest lab application.
 **
-** $Log: ci_lab_app.h  $
-** Revision 1.5 2010/11/17 08:13:27GMT-05:00 wmoleski 
-** The TO_Lab_APP, CI_Lab_APP and SCH_Lab_APP did not compile with cFE6.1.0. An include statement of cfe_error.h needed to be added to each app.
-** Revision 1.4 2010/09/02 09:53:55EDT wmoleski 
-** Modifications to the CI_Lab code to capture, drop and/or manipulate CFDP PDUs that are uplinked
-** from the ground. These changes were needed to test the CF fault detection requirements.
-** Revision 1.3 2008/09/22 13:58:24EDT apcudmore 
-** Added RunLoop call to CI_LAB app. Also added the task delete handler to close the CI socket.
-** Revision 1.2 2008/04/30 15:24:32EDT rjmcgraw 
-** DCR1718:1 Added version number in initialization event
-** Revision 1.1 2008/04/30 13:56:18EDT rjmcgraw 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/ci_lab/fsw/src/project.pj
-**
 *******************************************************************************/
 
 #ifndef _ci_lab_app_h_

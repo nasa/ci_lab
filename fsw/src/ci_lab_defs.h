@@ -18,18 +18,12 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File:
-**   $Id: ci_lab_defs.h 1.1 2010/09/08 07:05:25GMT-05:00 wmoleski Exp  $
+** File: ci_lab_defs.h
 **
 ** Purpose: 
 **  Define CI Lab Definitions that other apps may need to use
 **
 ** Notes:
-**
-** $Log: ci_lab_defs.h  $
-** Revision 1.1 2010/09/08 07:05:25GMT-05:00 wmoleski 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/ci_lab/fsw/src/project.pj
 **
 *******************************************************************************/
 #ifndef _ci_lab_defs_h_

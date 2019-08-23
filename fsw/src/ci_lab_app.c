@@ -23,25 +23,6 @@
 ** Purpose:
 **   This file contains the source code for the Command Ingest task.
 **
-** $Log: ci_lab_app.c  $
-** Revision 1.7 2010/09/20 12:27:19GMT-05:00 wmoleski 
-** Modified the CI_LAB, SCH_LAB and TO_LAB applications to use unique message IDs and Pipe Names. The "_LAB"
-** was added to all definitions so that a mission can use these "Lab" apps as well as their own mission apps together.
-** Revision 1.6 2010/09/02 09:53:55EDT wmoleski 
-** Modifications to the CI_Lab code to capture, drop and/or manipulate CFDP PDUs that are uplinked
-** from the ground. These changes were needed to test the CF fault detection requirements.
-** Revision 1.5 2008/09/22 13:58:20EDT apcudmore 
-** Added RunLoop call to CI_LAB app. Also added the task delete handler to close the CI socket.
-** Revision 1.4 2008/09/19 15:30:42EDT rjmcgraw 
-** DCR4337:1 Added #include version.h and display version after initialization is complete
-** Revision 1.3 2008/05/01 11:49:21EDT rjmcgraw 
-** DCR1718:1 Changed wording in intiialization event
-** Revision 1.2 2008/04/30 15:24:31EDT rjmcgraw 
-** DCR1718:1 Added version number in initialization event
-** Revision 1.1 2008/04/30 13:56:37EDT rjmcgraw 
-** Initial revision
-** Member added to CFS project
-**
 *******************************************************************************/
 
 /*

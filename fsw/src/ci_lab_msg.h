@@ -18,24 +18,12 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File:
-**   $Id: ci_lab_msg.h 1.3 2010/09/20 12:27:18GMT-05:00 wmoleski Exp  $
+** File: ci_lab_msg.h
 **
 ** Purpose: 
 **  Define CI Lab Messages and info
 **
 ** Notes:
-**
-** $Log: ci_lab_msg.h  $
-** Revision 1.3 2010/09/20 12:27:18GMT-05:00 wmoleski 
-** Modified the CI_LAB, SCH_LAB and TO_LAB applications to use unique message IDs and Pipe Names. The "_LAB"
-** was added to all definitions so that a mission can use these "Lab" apps as well as their own mission apps together.
-** Revision 1.2 2010/09/02 09:53:56EDT wmoleski 
-** Modifications to the CI_Lab code to capture, drop and/or manipulate CFDP PDUs that are uplinked
-** from the ground. These changes were needed to test the CF fault detection requirements.
-** Revision 1.1 2008/04/30 13:09:17EDT rjmcgraw 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/ci_lab/fsw/src/project.pj
 **
 *******************************************************************************/
 #ifndef _ci_lab_msg_h_
