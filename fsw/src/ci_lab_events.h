@@ -18,21 +18,12 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File:
-**   $Id: ci_lab_events.h 1.2 2010/09/02 08:53:56GMT-05:00 wmoleski Exp  $
+** File: ci_lab_events.h
 **
 ** Purpose: 
 **  Define CI Lab Events IDs
 **
 ** Notes:
-**
-** $Log: ci_lab_events.h  $
-** Revision 1.2 2010/09/02 08:53:56GMT-05:00 wmoleski 
-** Modifications to the CI_Lab code to capture, drop and/or manipulate CFDP PDUs that are uplinked
-** from the ground. These changes were needed to test the CF fault detection requirements.
-** Revision 1.1 2008/04/30 13:09:04EDT rjmcgraw 
-** Initial revision
-** Member added to project c:/MKSDATA/MKS-REPOSITORY/CFS-REPOSITORY/ci_lab/fsw/src/project.pj
 **
 *************************************************************************/
 #ifndef _ci_lab_events_h_
