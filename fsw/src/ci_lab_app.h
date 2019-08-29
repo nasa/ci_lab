@@ -100,6 +100,6 @@ void CI_StopPDUCaptureCmd(CFE_SB_MsgPtr_t msg);
 void CI_ProcessPDU(void);
 void CI_ReadUpLink(void);
 
-boolean CI_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength);
+bool CI_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength);
 
 #endif /* _ci_lab_app_h_ */
