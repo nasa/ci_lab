@@ -31,7 +31,7 @@
 
 
 #define CI_LAB_MAJOR_VERSION    2
-#define CI_LAB_MINOR_VERSION    2
+#define CI_LAB_MINOR_VERSION    3
 #define CI_LAB_REVISION         0
 #define CI_LAB_MISSION_REV      0
 
