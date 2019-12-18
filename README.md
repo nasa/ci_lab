@@ -6,13 +6,14 @@ This lab application is a non-flight utility to send commands to the cFS Bundle.
 
 ci_lab is a simple command uplink application that accepts CCSDS telecommand packets over a UDP/IP port. It does not provide a full CCSDS Telecommand stack implementation.
 
-## Release Notes
+## Version Notes
 
-- 2.3.0:
+- **2.3.0 OFFICIAL RELEASE**:
   - Minor updates (see #12)
   - Not backwards compatible with OSAL 4.2.1
+  - Released as part of cFE 6.7.0, Apache 2.0
 - **2.2.0a OFFICIAL RELEASE**:
-  - Released as part of cFE 6.6.0a under the Apache 2.0 license, see [LICENSE](LICENSE-18128-Apache-2_0.pdf).
+  - Released as part of cFE 6.6.0a, Apache 2.0
 
 ## Known issues
 
