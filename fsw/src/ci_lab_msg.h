@@ -20,7 +20,7 @@
 **
 ** File: ci_lab_msg.h
 **
-** Purpose: 
+** Purpose:
 **  Define CI Lab Messages and info
 **
 ** Notes:
@@ -46,7 +46,7 @@
 */
 typedef struct
 {
-   uint8          CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    uint8 CmdHeader[CFE_SB_CMD_HDR_SIZE];
 
 } CI_NoArgsCmd_t;
 
@@ -55,8 +55,8 @@ typedef struct
 */
 typedef struct
 {
-   uint8          CmdHeader[CFE_SB_CMD_HDR_SIZE];
-   CFE_SB_MsgId_t PDUMsgID;  /* Message ID of the downlinked PDUs to capture */
+    uint8          CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    CFE_SB_MsgId_t PDUMsgID; /* Message ID of the downlinked PDUs to capture */
 
 } CI_CapturePDUCmd_t;
 
@@ -65,9 +65,9 @@ typedef struct
 */
 typedef struct
 {
-   uint8	CmdHeader[CFE_SB_CMD_HDR_SIZE];
-   uint16	Direction;  /* Add or Subtract */
-   uint16	Amount;     /* The value to add or subtract from the file size*/
+    uint8  CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    uint16 Direction; /* Add or Subtract */
+    uint16 Amount;    /* The value to add or subtract from the file size*/
 
 } CI_ModifyFileSizeCmd_t;
 
@@ -76,38 +76,38 @@ typedef struct
 */
 typedef struct
 {
-   uint8	CmdHeader[CFE_SB_CMD_HDR_SIZE];
-   uint8	PDUType;     /* The Type of PDU to capture and drop */
-   uint8	PDUsToDrop;  /* The # of rcvd PDUs of the type to drop */
+    uint8 CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    uint8 PDUType;    /* The Type of PDU to capture and drop */
+    uint8 PDUsToDrop; /* The # of rcvd PDUs of the type to drop */
 
 } CI_DropPDUCmd_t;
-
 
 /*************************************************************************/
 /*
 ** Type definition (CI_Lab housekeeping)...
 */
-typedef struct {
+typedef struct
+{
 
-    uint8              TlmHeader[CFE_SB_TLM_HDR_SIZE];
-    uint8              ci_command_error_count;
-    uint8              ci_command_count;
-    uint8              ci_xsums_enabled;
-    uint8              SocketConnected;
-    uint8              FDPdusDropped;
-    uint8              EOFPdusDropped;
-    uint8              FINPdusDropped;
-    uint8              ACKPdusDropped;
-    uint8              MDPdusDropped;
-    uint8              NAKPdusDropped;
-    uint8              spare[2];
-    uint32             IngestPackets;
-    uint32             IngestErrors;
-    uint32             PDUsCaptured;
+    uint8  TlmHeader[CFE_SB_TLM_HDR_SIZE];
+    uint8  ci_command_error_count;
+    uint8  ci_command_count;
+    uint8  ci_xsums_enabled;
+    uint8  SocketConnected;
+    uint8  FDPdusDropped;
+    uint8  EOFPdusDropped;
+    uint8  FINPdusDropped;
+    uint8  ACKPdusDropped;
+    uint8  MDPdusDropped;
+    uint8  NAKPdusDropped;
+    uint8  spare[2];
+    uint32 IngestPackets;
+    uint32 IngestErrors;
+    uint32 PDUsCaptured;
 
-}   OS_PACK ci_hk_tlm_t  ;
+} OS_PACK ci_hk_tlm_t;
 
-#define CI_LAB_HK_TLM_LNGTH           sizeof ( ci_hk_tlm_t )
+#define CI_LAB_HK_TLM_LNGTH sizeof(ci_hk_tlm_t)
 
 #endif /* _ci_lab_msg_h_ */
 

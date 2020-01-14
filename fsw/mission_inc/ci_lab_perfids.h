@@ -18,9 +18,9 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: ci_lab_perfids.h 
+** File: ci_lab_perfids.h
 **
-** Purpose: 
+** Purpose:
 **  Define CI Lab Performance IDs
 **
 ** Notes:
@@ -29,9 +29,8 @@
 #ifndef _ci_lab_perfids_h_
 #define _ci_lab_perfids_h_
 
-
-#define CI_MAIN_TASK_PERF_ID            32
-#define CI_SOCKET_RCV_PERF_ID           33
+#define CI_MAIN_TASK_PERF_ID  32
+#define CI_SOCKET_RCV_PERF_ID 33
 
 #endif /* _ci_lab_perfids_h_ */
 
