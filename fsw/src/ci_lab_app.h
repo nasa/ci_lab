@@ -47,23 +47,23 @@
 
 /****************************************************************************/
 
-#define cfgCI_PORT                      1234
-#define CI_MAX_INGEST                    768
-#define CI_PIPE_DEPTH                     32
+#define cfgCI_PORT    1234
+#define CI_MAX_INGEST 768
+#define CI_PIPE_DEPTH 32
 
 /************************************************************************
 ** Type Definitions
 *************************************************************************/
 typedef struct
 {
-    uint8   Octet1;
-    uint16  PDataLen;
-    uint8   Octet4;
-    uint16  SrcEntityId;
-    uint32  TransSeqNum;
-    uint16  DstEntityId;
+    uint8  Octet1;
+    uint16 PDataLen;
+    uint8  Octet4;
+    uint16 SrcEntityId;
+    uint32 TransSeqNum;
+    uint16 DstEntityId;
 
-}OS_PACK CF_PDU_Hdr_t;
+} OS_PACK CF_PDU_Hdr_t;
 
 /****************************************************************************/
 /*

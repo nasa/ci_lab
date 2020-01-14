@@ -20,7 +20,7 @@
 **
 ** File: ci_lab_defs.h
 **
-** Purpose: 
+** Purpose:
 **  Define CI Lab Definitions that other apps may need to use
 **
 ** Notes:
@@ -33,16 +33,16 @@
 ** Definitions
 */
 /* File Size Command argument values */
-#define PDU_SIZE_ADD		0
-#define PDU_SIZE_SUBTRACT	1
+#define PDU_SIZE_ADD      0
+#define PDU_SIZE_SUBTRACT 1
 
 /* PDU Type argument values */
-#define FILE_DATA_PDU	0
-#define EOF_PDU		1
-#define FIN_PDU		2
-#define ACK_PDU		3
-#define META_DATA_PDU	4
-#define NAK_PDU		5
+#define FILE_DATA_PDU 0
+#define EOF_PDU       1
+#define FIN_PDU       2
+#define ACK_PDU       3
+#define META_DATA_PDU 4
+#define NAK_PDU       5
 
 #endif /* _ci_lab_defs_h_ */
 

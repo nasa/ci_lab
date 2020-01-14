@@ -29,12 +29,10 @@
 #ifndef _ci_lab_version_h_
 #define _ci_lab_version_h_
 
-
-#define CI_LAB_MAJOR_VERSION    2
-#define CI_LAB_MINOR_VERSION    3
-#define CI_LAB_REVISION         0
-#define CI_LAB_MISSION_REV      0
-
+#define CI_LAB_MAJOR_VERSION 2
+#define CI_LAB_MINOR_VERSION 3
+#define CI_LAB_REVISION      0
+#define CI_LAB_MISSION_REV   0
 
 #endif /* _ci_lab_version_h_ */
 
