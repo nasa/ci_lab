@@ -8,8 +8,10 @@ ci_lab is a simple command uplink application that accepts CCSDS telecommand pac
 
 ## Version Notes
 
+- 2.3.1: DEVELOPMENT
+  - Code style and enforcement (see https://github.com/nasa/ci_lab/pull/31)
 - **2.3.0 OFFICIAL RELEASE**:
-  - Minor updates (see #12)
+  - Minor updates (see https://github.com/nasa/ci_lab/pull/12)
   - Not backwards compatible with OSAL 4.2.1
   - Released as part of cFE 6.7.0, Apache 2.0
 - **2.2.0a OFFICIAL RELEASE**:
