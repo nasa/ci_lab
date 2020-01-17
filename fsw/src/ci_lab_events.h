@@ -20,7 +20,7 @@
 **
 ** File: ci_lab_events.h
 **
-** Purpose: 
+** Purpose:
 **  Define CI Lab Events IDs
 **
 ** Notes:
@@ -29,24 +29,23 @@
 #ifndef _ci_lab_events_h_
 #define _ci_lab_events_h_
 
-
-#define CI_RESERVED_EID              0
-#define CI_SOCKETCREATE_ERR_EID      1 
-#define CI_SOCKETBIND_ERR_EID        2
-#define CI_STARTUP_INF_EID           3 
-#define CI_COMMAND_ERR_EID           4
-#define CI_COMMANDNOP_INF_EID        5 
-#define CI_COMMANDRST_INF_EID        6
-#define CI_INGEST_INF_EID            7
-#define CI_INGEST_ERR_EID            8
-#define CI_MOD_PDU_FILESIZE_CMD_EID  9
-#define CI_CORRUPT_CHECKSUM_CMD_EID  10
-#define CI_DROP_PDU_CMD_EID          11
-#define CI_CAPTUREPDU_CMD_EID        12
-#define CI_INVALID_MSGID_ERR_EID     13
-#define CI_STOP_PDUCAPTURE_CMD_EID   14
-#define CI_NOCAPTURE_ERR_EID         15
-#define CI_LEN_ERR_EID               16
+#define CI_RESERVED_EID             0
+#define CI_SOCKETCREATE_ERR_EID     1
+#define CI_SOCKETBIND_ERR_EID       2
+#define CI_STARTUP_INF_EID          3
+#define CI_COMMAND_ERR_EID          4
+#define CI_COMMANDNOP_INF_EID       5
+#define CI_COMMANDRST_INF_EID       6
+#define CI_INGEST_INF_EID           7
+#define CI_INGEST_ERR_EID           8
+#define CI_MOD_PDU_FILESIZE_CMD_EID 9
+#define CI_CORRUPT_CHECKSUM_CMD_EID 10
+#define CI_DROP_PDU_CMD_EID         11
+#define CI_CAPTUREPDU_CMD_EID       12
+#define CI_INVALID_MSGID_ERR_EID    13
+#define CI_STOP_PDUCAPTURE_CMD_EID  14
+#define CI_NOCAPTURE_ERR_EID        15
+#define CI_LEN_ERR_EID              16
 
 #endif /* _ci_lab_events_h_ */
 
