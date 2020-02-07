@@ -45,23 +45,38 @@ typedef struct
 
 } CI_NoArgsCmd_t;
 
+/*
+ * Neither the Noop nor ResetCounters command
+ * have any payload, but should still "reserve" a unique
+ * structure type to employ a consistent handler pattern.
+ *
+ * This matches the pattern in CFE core and other modules.
+ */
+typedef CI_NoArgsCmd_t  CI_NoopCmd_t;
+typedef CI_NoArgsCmd_t  CI_ResetCountersCmd_t;
+
+
 /*************************************************************************/
 /*
 ** Type definition (CI_Lab housekeeping)...
 */
 typedef struct
 {
-
-    uint8  TlmHeader[CFE_SB_TLM_HDR_SIZE];
-    uint8  ci_command_error_count;
-    uint8  ci_command_count;
-    uint8  ci_xsums_enabled;
+    uint8  CommandErrorCounter;
+    uint8  CommandCounter;
+    uint8  EnableChecksums;
     uint8  SocketConnected;
     uint8  Spare1[8];
     uint32 IngestPackets;
     uint32 IngestErrors;
     uint32 Spare2;
 
+} CI_HkTlm_Payload_t;
+
+typedef struct
+{
+    uint8  TlmHeader[CFE_SB_TLM_HDR_SIZE];
+    CI_HkTlm_Payload_t Payload;
 } OS_PACK ci_hk_tlm_t;
 
 #define CI_LAB_HK_TLM_LNGTH sizeof(ci_hk_tlm_t)

@@ -65,6 +65,17 @@ static CFE_EVS_BinFilter_t CI_EventFilters[] = {/* Event ID    mask */
                                                 {CI_COMMANDNOP_INF_EID, 0x0000},   {CI_COMMANDRST_INF_EID, 0x0000},
                                                 {CI_INGEST_INF_EID, 0x0000},       {CI_INGEST_ERR_EID, 0x0000}};
 
+/*
+ * Individual message handler function prototypes
+ *
+ * Per the recommended code pattern, these should accept a const pointer
+ * to a structure type which matches the message, and return an int32
+ * where CFE_SUCCESS (0) indicates successful handling of the message.
+ */
+int32 CI_NoopCmd(const CI_NoopCmd_t *data);
+int32 CI_ResetCountersCmd(const CI_ResetCountersCmd_t *data);
+int32 CI_ReportHousekeeping(const CCSDS_CommandPacket_t *data);
+
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /* CI_Lab_AppMain() -- Application entry point and main process loop          */
 /* Purpose: This is the Main task event loop for the Command Ingest Task      */
@@ -201,11 +212,11 @@ void CI_ProcessCommandPacket(void)
             break;
 
         case CI_LAB_SEND_HK_MID:
-            CI_ReportHousekeeping();
+            CI_ReportHousekeeping((const CCSDS_CommandPacket_t *)CIMsgPtr);
             break;
 
         default:
-            CI_HkTelemetryPkt.ci_command_error_count++;
+            CI_HkTelemetryPkt.Payload.CommandErrorCounter++;
             CFE_EVS_SendEvent(CI_COMMAND_ERR_EID, CFE_EVS_EventType_ERROR, "CI: invalid command packet,MID = 0x%x",
                               MsgId);
             break;
@@ -231,12 +242,11 @@ void CI_ProcessGroundCommand(void)
     switch (CommandCode)
     {
         case CI_NOOP_CC:
-            CI_HkTelemetryPkt.ci_command_count++;
-            CFE_EVS_SendEvent(CI_COMMANDNOP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: NOOP command");
+            CI_NoopCmd((const CI_NoopCmd_t *)CIMsgPtr);
             break;
 
         case CI_RESET_COUNTERS_CC:
-            CI_ResetCounters();
+            CI_ResetCountersCmd((const CI_ResetCountersCmd_t *)CIMsgPtr);
             break;
 
         /* default case already found during FC vs length test */
@@ -248,6 +258,38 @@ void CI_ProcessGroundCommand(void)
 
 } /* End of CI_ProcessGroundCommand() */
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*  Name:  CI_NoopCmd                                                         */
+/*                                                                             */
+/*  Purpose:                                                                   */
+/*     Handle NOOP command packets                                             */
+/*                                                                             */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+int32 CI_NoopCmd(const CI_NoopCmd_t *data)
+{
+    /* Does everything the name implies */
+    CI_HkTelemetryPkt.Payload.CommandCounter++;
+
+    CFE_EVS_SendEvent(CI_COMMANDNOP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: NOOP command");
+
+    return CFE_SUCCESS;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*  Name:  CI_ResetCountersCmd                                                */
+/*                                                                             */
+/*  Purpose:                                                                   */
+/*     Handle ResetCounters command packets                                    */
+/*                                                                             */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+int32 CI_ResetCountersCmd(const CI_ResetCountersCmd_t *data)
+{
+    CFE_EVS_SendEvent(CI_LAB_COMMANDRST_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: RESET command");
+    CI_ResetCounters();
+    return CFE_SUCCESS;
+}
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 /*  Name:  CI_ReportHousekeeping                                              */
 /*                                                                            */
@@ -257,12 +299,12 @@ void CI_ProcessGroundCommand(void)
 /*         telemetry, packetize it and send it to the housekeeping task via   */
 /*         the software bus                                                   */
 /* * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * *  * *  * * * * */
-void CI_ReportHousekeeping(void)
+int32 CI_ReportHousekeeping(const CCSDS_CommandPacket_t *data)
 {
-    CI_HkTelemetryPkt.SocketConnected = CI_SocketConnected;
+    CI_HkTelemetryPkt.Payload.SocketConnected = CI_SocketConnected;
     CFE_SB_TimeStampMsg((CFE_SB_Msg_t *)&CI_HkTelemetryPkt);
     CFE_SB_SendMsg((CFE_SB_Msg_t *)&CI_HkTelemetryPkt);
-    return;
+    return CFE_SUCCESS;
 
 } /* End of CI_ReportHousekeeping() */
 
@@ -277,14 +319,13 @@ void CI_ReportHousekeeping(void)
 void CI_ResetCounters(void)
 {
     /* Status of commands processed by CI task */
-    CI_HkTelemetryPkt.ci_command_count       = 0;
-    CI_HkTelemetryPkt.ci_command_error_count = 0;
+    CI_HkTelemetryPkt.Payload.CommandCounter       = 0;
+    CI_HkTelemetryPkt.Payload.CommandErrorCounter = 0;
 
     /* Status of packets ingested by CI task */
-    CI_HkTelemetryPkt.IngestPackets = 0;
-    CI_HkTelemetryPkt.IngestErrors  = 0;
+    CI_HkTelemetryPkt.Payload.IngestPackets = 0;
+    CI_HkTelemetryPkt.Payload.IngestErrors  = 0;
 
-    CFE_EVS_SendEvent(CI_COMMANDRST_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: RESET command");
     return;
 
 } /* End of CI_ResetCounters() */
@@ -302,21 +343,24 @@ void CI_ReadUpLink(void)
     for (i = 0; i <= 10; i++)
     {
         status = OS_SocketRecvFrom(CI_SocketID, CI_IngestBuffer.bytes, sizeof(CI_IngestBuffer), &CI_SocketAddress, OS_CHECK);
-        if (status < 0)
-            break; /* no (more) messages */
+        if (status >= ((int32)CFE_SB_CMD_HDR_SIZE) &&
+                status <= ((int32)CI_MAX_INGEST))
+        {
+            CFE_ES_PerfLogEntry(CI_SOCKET_RCV_PERF_ID);
+            CI_HkTelemetryPkt.Payload.IngestPackets++;
+            status = CFE_SB_SendMsg(&CI_IngestBuffer.MsgHdr);
+            CFE_ES_PerfLogExit(CI_SOCKET_RCV_PERF_ID);
+        }
+        else if (status > 0)
+        {
+            /* bad size, report as ingest error */
+            CI_HkTelemetryPkt.Payload.IngestErrors++;
+            CFE_EVS_SendEvent(CI_INGEST_ERR_EID,CFE_EVS_EventType_ERROR, "CI: L%d, cmd %0x %0x dropped, bad length=%d\n", __LINE__,
+                    CI_IngestBuffer.hwords[0], CI_IngestBuffer.hwords[1], (int)status);
+        }
         else
         {
-            if (status <= CI_MAX_INGEST)
-            {
-				CFE_ES_PerfLogEntry(CI_SOCKET_RCV_PERF_ID);
-				CI_HkTelemetryPkt.IngestPackets++;
-				CFE_SB_SendMsg(&CI_IngestBuffer.MsgHdr);
-				CFE_ES_PerfLogExit(CI_SOCKET_RCV_PERF_ID);
-            }
-            else
-            {
-                CI_HkTelemetryPkt.IngestErrors++;
-            }
+            break; /* no (more) messages */
         }
     }
 
@@ -346,7 +390,7 @@ bool CI_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength)
                           "Invalid msg length: ID = 0x%X,  CC = %d, Len = %d, Expected = %d", MessageID, CommandCode,
                           ActualLength, ExpectedLength);
         result = false;
-        CI_HkTelemetryPkt.ci_command_error_count++;
+        CI_HkTelemetryPkt.Payload.CommandErrorCounter++;
     }
 
     return (result);

@@ -58,14 +58,13 @@
 /*
 ** Local function prototypes...
 **
-** Note: Except for the entry point (CI_task_main), these
+** Note: Except for the entry point (CI_Lab_AppMain), these
 **       functions are not called from any other source module.
 */
-void CI_task_main(void);
+void CI_Lab_AppMain(void);
 void CI_TaskInit(void);
 void CI_ProcessCommandPacket(void);
 void CI_ProcessGroundCommand(void);
-void CI_ReportHousekeeping(void);
 void CI_ResetCounters(void);
 void CI_ReadUpLink(void);
 
