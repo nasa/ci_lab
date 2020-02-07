@@ -34,11 +34,6 @@
 */
 #define CI_NOOP_CC                 0
 #define CI_RESET_COUNTERS_CC       1
-#define CI_MODIFY_PDU_FILESIZE_CC  2
-#define CI_CORRUPT_PDU_CHECKSUM_CC 3
-#define CI_DROP_PDUS_CC            4
-#define CI_CAPTURE_PDUS_CC         5
-#define CI_STOP_PDU_CAPTURE_CC     6
 
 /*************************************************************************/
 /*
@@ -49,38 +44,6 @@ typedef struct
     uint8 CmdHeader[CFE_SB_CMD_HDR_SIZE];
 
 } CI_NoArgsCmd_t;
-
-/*
-** Type definition (Capture PDUs command structure)
-*/
-typedef struct
-{
-    uint8          CmdHeader[CFE_SB_CMD_HDR_SIZE];
-    CFE_SB_MsgId_t PDUMsgID; /* Message ID of the downlinked PDUs to capture */
-
-} CI_CapturePDUCmd_t;
-
-/*
-** Type definition (Modify PDU file size command structure)
-*/
-typedef struct
-{
-    uint8  CmdHeader[CFE_SB_CMD_HDR_SIZE];
-    uint16 Direction; /* Add or Subtract */
-    uint16 Amount;    /* The value to add or subtract from the file size*/
-
-} CI_ModifyFileSizeCmd_t;
-
-/*
-** Type definition (Drop PDU command structure)
-*/
-typedef struct
-{
-    uint8 CmdHeader[CFE_SB_CMD_HDR_SIZE];
-    uint8 PDUType;    /* The Type of PDU to capture and drop */
-    uint8 PDUsToDrop; /* The # of rcvd PDUs of the type to drop */
-
-} CI_DropPDUCmd_t;
 
 /*************************************************************************/
 /*
