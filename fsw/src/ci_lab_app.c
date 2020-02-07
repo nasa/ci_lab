@@ -281,15 +281,6 @@ void CI_ResetCounters(void)
     CI_HkTelemetryPkt.IngestPackets = 0;
     CI_HkTelemetryPkt.IngestErrors  = 0;
 
-    /* Status of packets ingested by CI task */
-    CI_HkTelemetryPkt.FDPdusDropped  = 0;
-    CI_HkTelemetryPkt.EOFPdusDropped = 0;
-    CI_HkTelemetryPkt.FINPdusDropped = 0;
-    CI_HkTelemetryPkt.ACKPdusDropped = 0;
-    CI_HkTelemetryPkt.MDPdusDropped  = 0;
-    CI_HkTelemetryPkt.NAKPdusDropped = 0;
-    CI_HkTelemetryPkt.PDUsCaptured   = 0;
-
     CFE_EVS_SendEvent(CI_COMMANDRST_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: RESET command");
     return;
 

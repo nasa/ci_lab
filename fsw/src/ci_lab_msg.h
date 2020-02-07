@@ -57,16 +57,10 @@ typedef struct
     uint8  ci_command_count;
     uint8  ci_xsums_enabled;
     uint8  SocketConnected;
-    uint8  FDPdusDropped;
-    uint8  EOFPdusDropped;
-    uint8  FINPdusDropped;
-    uint8  ACKPdusDropped;
-    uint8  MDPdusDropped;
-    uint8  NAKPdusDropped;
-    uint8  spare[2];
+    uint8  Spare1[8];
     uint32 IngestPackets;
     uint32 IngestErrors;
-    uint32 PDUsCaptured;
+    uint32 Spare2;
 
 } OS_PACK ci_hk_tlm_t;
 
