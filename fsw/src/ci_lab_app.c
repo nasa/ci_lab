@@ -44,10 +44,20 @@ bool               CI_SocketConnected = false;
 ci_hk_tlm_t        CI_HkTelemetryPkt;
 CFE_SB_PipeId_t    CI_CommandPipe;
 CFE_SB_MsgPtr_t    CIMsgPtr;
-int                CI_SocketID;
-struct sockaddr_in CI_SocketAddress;
-uint8              CI_IngestBuffer[CI_MAX_INGEST];
-CFE_SB_Msg_t *     CI_IngestPointer = (CFE_SB_Msg_t *)&CI_IngestBuffer[0];
+uint32             CI_SocketID;
+OS_SockAddr_t      CI_SocketAddress;
+
+/*
+ * Declaring the CI_IngestBuffer as a union
+ * ensures it is aligned appropriately to 
+ * store a CFE_SB_Msg_t type.
+ */
+union
+{
+   CFE_SB_Msg_t      MsgHdr;
+   uint8             bytes[CI_MAX_INGEST];
+   uint16            hwords[2];
+} CI_IngestBuffer;
 
 static CFE_EVS_BinFilter_t CI_EventFilters[] = {/* Event ID    mask */
                                                 {CI_SOCKETCREATE_ERR_EID, 0x0000}, {CI_SOCKETBIND_ERR_EID, 0x0000},
@@ -110,7 +120,7 @@ void CI_Lab_AppMain(void)
 void CI_delete_callback(void)
 {
     OS_printf("CI delete callback -- Closing CI Network socket.\n");
-    close(CI_SocketID);
+    OS_close(CI_SocketID);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
@@ -120,6 +130,8 @@ void CI_delete_callback(void)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 void CI_TaskInit(void)
 {
+    int32 status;
+
     CFE_ES_RegisterApp();
 
     CFE_EVS_Register(CI_EventFilters, sizeof(CI_EventFilters) / sizeof(CFE_EVS_BinFilter_t),
@@ -129,32 +141,25 @@ void CI_TaskInit(void)
     CFE_SB_Subscribe(CI_LAB_CMD_MID, CI_CommandPipe);
     CFE_SB_Subscribe(CI_LAB_SEND_HK_MID, CI_CommandPipe);
 
-    if ((CI_SocketID = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+    status = OS_SocketOpen(&CI_SocketID, OS_SocketDomain_INET, OS_SocketType_DATAGRAM);
+    if (status != OS_SUCCESS)
     {
-        CFE_EVS_SendEvent(CI_SOCKETCREATE_ERR_EID, CFE_EVS_EventType_ERROR, "CI: create socket failed = %d", errno);
+        CFE_EVS_SendEvent(CI_SOCKETCREATE_ERR_EID,CFE_EVS_EventType_ERROR,"CI: create socket failed = %d", (int)status);
     }
     else
     {
-        memset(&CI_SocketAddress, 0, sizeof(CI_SocketAddress));
-        CI_SocketAddress.sin_family      = AF_INET;
-        CI_SocketAddress.sin_addr.s_addr = htonl(INADDR_ANY);
-        CI_SocketAddress.sin_port        = htons(cfgCI_PORT);
+        OS_SocketAddrInit(&CI_SocketAddress, OS_SocketDomain_INET);
+        OS_SocketAddrSetPort(&CI_SocketAddress, cfgCI_PORT);
 
-        if ((bind(CI_SocketID, (struct sockaddr *)&CI_SocketAddress, sizeof(CI_SocketAddress)) < 0))
+        status = OS_SocketBind(CI_SocketID, &CI_SocketAddress);
+
+        if ( status != OS_SUCCESS )
         {
-            CFE_EVS_SendEvent(CI_SOCKETBIND_ERR_EID, CFE_EVS_EventType_ERROR, "CI: bind socket failed = %d", errno);
+            CFE_EVS_SendEvent(CI_SOCKETBIND_ERR_EID,CFE_EVS_EventType_ERROR,"CI: bind socket failed = %d", (int)status);
         }
         else
         {
             CI_SocketConnected = true;
-#ifdef _HAVE_FCNTL_
-            /*
-            ** Set the socket to non-blocking
-            ** This is not available to vxWorks, so it has to be
-            ** Conditionally compiled in
-            */
-            fcntl(CI_SocketID, F_SETFL, O_NONBLOCK);
-#endif
         }
     }
 
@@ -291,20 +296,13 @@ void CI_ResetCounters(void)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 void CI_ReadUpLink(void)
 {
-    socklen_t addr_len;
-    int       i;
-    int       status;
-
-    addr_len = sizeof(CI_SocketAddress);
-
-    memset(&CI_SocketAddress, 0, sizeof(CI_SocketAddress));
+    int i;
+    int32 status;
 
     for (i = 0; i <= 10; i++)
     {
-        status = recvfrom(CI_SocketID, (char *)&CI_IngestBuffer[0], sizeof(CI_IngestBuffer), MSG_DONTWAIT,
-                          (struct sockaddr *)&CI_SocketAddress, &addr_len);
-
-        if ((status < 0) && (errno == EWOULDBLOCK))
+        status = OS_SocketRecvFrom(CI_SocketID, CI_IngestBuffer.bytes, sizeof(CI_IngestBuffer), &CI_SocketAddress, OS_CHECK);
+        if (status < 0)
             break; /* no (more) messages */
         else
         {
@@ -312,7 +310,7 @@ void CI_ReadUpLink(void)
             {
 				CFE_ES_PerfLogEntry(CI_SOCKET_RCV_PERF_ID);
 				CI_HkTelemetryPkt.IngestPackets++;
-				CFE_SB_SendMsg(CI_IngestPointer);
+				CFE_SB_SendMsg(&CI_IngestBuffer.MsgHdr);
 				CFE_ES_PerfLogExit(CI_SOCKET_RCV_PERF_ID);
             }
             else

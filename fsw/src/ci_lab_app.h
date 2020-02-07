@@ -31,7 +31,6 @@
 /*
 ** Required header files...
 */
-#include "network_includes.h"
 #include "common_types.h"
 #include "cfe_error.h"
 #include "cfe_evs.h"
