@@ -54,16 +54,6 @@
 /************************************************************************
 ** Type Definitions
 *************************************************************************/
-typedef struct
-{
-    uint8  Octet1;
-    uint16 PDataLen;
-    uint8  Octet4;
-    uint16 SrcEntityId;
-    uint32 TransSeqNum;
-    uint16 DstEntityId;
-
-} OS_PACK CF_PDU_Hdr_t;
 
 /****************************************************************************/
 /*
@@ -78,12 +68,6 @@ void CI_ProcessCommandPacket(void);
 void CI_ProcessGroundCommand(void);
 void CI_ReportHousekeeping(void);
 void CI_ResetCounters(void);
-void CI_ModifyFileSizeCmd(CFE_SB_MsgPtr_t msg);
-void CI_CorruptChecksumCmd(CFE_SB_MsgPtr_t msg);
-void CI_DropPDUCmd(CFE_SB_MsgPtr_t msg);
-void CI_CapturePDUsCmd(CFE_SB_MsgPtr_t msg);
-void CI_StopPDUCaptureCmd(CFE_SB_MsgPtr_t msg);
-void CI_ProcessPDU(void);
 void CI_ReadUpLink(void);
 
 bool CI_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength);
