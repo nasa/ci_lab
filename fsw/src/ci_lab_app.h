@@ -46,9 +46,9 @@
 
 /****************************************************************************/
 
-#define cfgCI_PORT    1234
-#define CI_MAX_INGEST 768
-#define CI_PIPE_DEPTH 32
+#define cfgCI_LAB_PORT    1234
+#define CI_LAB_MAX_INGEST 768
+#define CI_LAB_PIPE_DEPTH 32
 
 /************************************************************************
 ** Type Definitions
@@ -58,16 +58,16 @@
 /*
 ** Local function prototypes...
 **
-** Note: Except for the entry point (CI_Lab_AppMain), these
+** Note: Except for the entry point (CI_LAB_AppMain), these
 **       functions are not called from any other source module.
 */
 void CI_Lab_AppMain(void);
-void CI_TaskInit(void);
-void CI_ProcessCommandPacket(void);
-void CI_ProcessGroundCommand(void);
-void CI_ResetCounters(void);
-void CI_ReadUpLink(void);
+void CI_LAB_TaskInit(void);
+void CI_LAB_ProcessCommandPacket(void);
+void CI_LAB_ProcessGroundCommand(void);
+void CI_LAB_ResetCounters_Internal(void);
+void CI_LAB_ReadUpLink(void);
 
-bool CI_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength);
+bool CI_LAB_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength);
 
 #endif /* _ci_lab_app_h_ */

@@ -30,10 +30,10 @@
 #define _ci_lab_msg_h_
 
 /*
-** CI_Lab command codes
+** CI_LAB_Lab command codes
 */
-#define CI_NOOP_CC                 0
-#define CI_RESET_COUNTERS_CC       1
+#define CI_LAB_NOOP_CC                 0
+#define CI_LAB_RESET_COUNTERS_CC       1
 
 /*************************************************************************/
 /*
@@ -43,7 +43,7 @@ typedef struct
 {
     uint8 CmdHeader[CFE_SB_CMD_HDR_SIZE];
 
-} CI_NoArgsCmd_t;
+} CI_LAB_NoArgsCmd_t;
 
 /*
  * Neither the Noop nor ResetCounters command
@@ -52,13 +52,13 @@ typedef struct
  *
  * This matches the pattern in CFE core and other modules.
  */
-typedef CI_NoArgsCmd_t  CI_NoopCmd_t;
-typedef CI_NoArgsCmd_t  CI_ResetCountersCmd_t;
+typedef CI_LAB_NoArgsCmd_t  CI_LAB_Noop_t;
+typedef CI_LAB_NoArgsCmd_t  CI_LAB_ResetCounters_t;
 
 
 /*************************************************************************/
 /*
-** Type definition (CI_Lab housekeeping)...
+** Type definition (CI_LAB_Lab housekeeping)...
 */
 typedef struct
 {
@@ -71,15 +71,15 @@ typedef struct
     uint32 IngestErrors;
     uint32 Spare2;
 
-} CI_HkTlm_Payload_t;
+} CI_LAB_HkTlm_Payload_t;
 
 typedef struct
 {
     uint8  TlmHeader[CFE_SB_TLM_HDR_SIZE];
-    CI_HkTlm_Payload_t Payload;
-} OS_PACK ci_hk_tlm_t;
+    CI_LAB_HkTlm_Payload_t Payload;
+} OS_PACK CI_LAB_HkTlm_t;
 
-#define CI_LAB_HK_TLM_LNGTH sizeof(ci_hk_tlm_t)
+#define CI_LAB_HK_TLM_LNGTH sizeof(CI_LAB_HkTlm_t)
 
 #endif /* _ci_lab_msg_h_ */
 
