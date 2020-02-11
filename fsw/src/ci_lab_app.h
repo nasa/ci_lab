@@ -46,9 +46,9 @@
 
 /****************************************************************************/
 
-#define cfgCI_LAB_PORT    1234
-#define CI_LAB_MAX_INGEST 768
-#define CI_LAB_PIPE_DEPTH 32
+#define CI_LAB_BASE_UDP_PORT 1234
+#define CI_LAB_MAX_INGEST    768
+#define CI_LAB_PIPE_DEPTH    32
 
 /************************************************************************
 ** Type Definitions

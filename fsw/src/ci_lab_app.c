@@ -154,7 +154,8 @@ void CI_LAB_delete_callback(void)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 void CI_LAB_TaskInit(void)
 {
-    int32 status;
+    int32  status;
+    uint16 DefaultListenPort;
 
     memset(&CI_LAB_Global, 0, sizeof(CI_LAB_Global));
 
@@ -176,7 +177,8 @@ void CI_LAB_TaskInit(void)
     else
     {
         OS_SocketAddrInit(&CI_LAB_Global.SocketAddress, OS_SocketDomain_INET);
-        OS_SocketAddrSetPort(&CI_LAB_Global.SocketAddress, cfgCI_LAB_PORT);
+        DefaultListenPort = CI_LAB_BASE_UDP_PORT + CFE_PSP_GetProcessorId() - 1;
+        OS_SocketAddrSetPort(&CI_LAB_Global.SocketAddress, DefaultListenPort);
 
         status = OS_SocketBind(CI_LAB_Global.SocketID, &CI_LAB_Global.SocketAddress);
 
@@ -188,6 +190,7 @@ void CI_LAB_TaskInit(void)
         else
         {
             CI_LAB_Global.SocketConnected = true;
+            CFE_ES_WriteToSysLog("CI_LAB listening on UDP port: %u\n", (unsigned int)DefaultListenPort);
         }
     }
 
