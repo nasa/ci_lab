@@ -326,7 +326,7 @@ int32 CI_LAB_ReportHousekeeping(const CCSDS_CommandPacket_t *data)
 } /* End of CI_LAB_ReportHousekeeping() */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*  Name:  CI_LAB_ResetCounters                                               */
+/*  Name:  CI_LAB_ResetCounters_Internal                                      */
 /*                                                                            */
 /*  Purpose:                                                                  */
 /*         This function resets all the global counter variables that are     */
