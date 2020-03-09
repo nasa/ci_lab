@@ -33,46 +33,63 @@
 #include "ci_lab_perfids.h"
 #include "ci_lab_msgids.h"
 #include "ci_lab_msg.h"
-#include "ci_lab_defs.h"
 #include "ci_lab_events.h"
 #include "ci_lab_version.h"
-
-#include "cfe_platform_cfg.h"
 
 /*
 ** CI global data...
 */
 
-bool               CI_SocketConnected = false;
-ci_hk_tlm_t        CI_HkTelemetryPkt;
-CFE_SB_PipeId_t    CI_CommandPipe;
-CFE_SB_MsgPtr_t    CIMsgPtr;
-int                CI_SocketID;
-struct sockaddr_in CI_SocketAddress;
-uint8              CI_IngestBuffer[CI_MAX_INGEST];
-CFE_SB_Msg_t *     CI_IngestPointer = (CFE_SB_Msg_t *)&CI_IngestBuffer[0];
-CFE_SB_MsgId_t     PDUMessageID     = 0;
-bool               adjustFileSize   = false;
-int                PDUFileSizeAdjustment;
-bool               dropFileData = false;
-int                dropFileDataCnt;
-bool               dropEOF = false;
-int                dropEOFCnt;
-bool               dropFIN = false;
-int                dropFINCnt;
-bool               dropACK = false;
-int                dropACKCnt;
-bool               dropMetaData = false;
-int                dropMetaDataCnt;
-bool               dropNAK = false;
-int                dropNAKCnt;
-bool               corruptChecksum = false;
+/*
+ * Declaring the CI_LAB_IngestBuffer as a union
+ * ensures it is aligned appropriately to 
+ * store a CFE_SB_Msg_t type.
+ */
+typedef union
+{
+   CFE_SB_Msg_t      MsgHdr;
+   uint8             bytes[CI_LAB_MAX_INGEST];
+   uint16            hwords[2];
+} CI_LAB_IngestBuffer_t;
 
-static CFE_EVS_BinFilter_t CI_EventFilters[] = {/* Event ID    mask */
-                                                {CI_SOCKETCREATE_ERR_EID, 0x0000}, {CI_SOCKETBIND_ERR_EID, 0x0000},
-                                                {CI_STARTUP_INF_EID, 0x0000},      {CI_COMMAND_ERR_EID, 0x0000},
-                                                {CI_COMMANDNOP_INF_EID, 0x0000},   {CI_COMMANDRST_INF_EID, 0x0000},
-                                                {CI_INGEST_INF_EID, 0x0000},       {CI_INGEST_ERR_EID, 0x0000}};
+typedef union
+{
+    CFE_SB_Msg_t        MsgHdr;
+    CI_LAB_HkTlm_t      HkTlm;
+} CI_LAB_HkTlm_Buffer_t;
+
+typedef struct
+{
+    bool               SocketConnected;
+    CFE_SB_PipeId_t    CommandPipe;
+    CFE_SB_MsgPtr_t    MsgPtr;
+    uint32             SocketID;
+    OS_SockAddr_t      SocketAddress;
+
+    CI_LAB_HkTlm_Buffer_t   HkBuffer;
+    CI_LAB_IngestBuffer_t   IngestBuffer;
+} CI_LAB_GlobalData_t;
+
+
+CI_LAB_GlobalData_t CI_LAB_Global;
+
+static CFE_EVS_BinFilter_t CI_LAB_EventFilters[] = {/* Event ID    mask */
+                                                {CI_LAB_SOCKETCREATE_ERR_EID, 0x0000}, {CI_LAB_SOCKETBIND_ERR_EID, 0x0000},
+                                                {CI_LAB_STARTUP_INF_EID, 0x0000},      {CI_LAB_COMMAND_ERR_EID, 0x0000},
+                                                {CI_LAB_COMMANDNOP_INF_EID, 0x0000},   {CI_LAB_COMMANDRST_INF_EID, 0x0000},
+                                                {CI_LAB_INGEST_INF_EID, 0x0000},       {CI_LAB_INGEST_ERR_EID, 0x0000}};
+
+
+/*
+ * Individual message handler function prototypes
+ *
+ * Per the recommended code pattern, these should accept a const pointer
+ * to a structure type which matches the message, and return an int32
+ * where CFE_SUCCESS (0) indicates successful handling of the message.
+ */
+int32 CI_LAB_Noop(const CI_LAB_Noop_t *data);
+int32 CI_LAB_ResetCounters(const CI_LAB_ResetCounters_t *data);
+int32 CI_LAB_ReportHousekeeping(const CCSDS_CommandPacket_t *data);
 
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /* CI_Lab_AppMain() -- Application entry point and main process loop          */
@@ -89,31 +106,31 @@ void CI_Lab_AppMain(void)
     int32  status;
     uint32 RunStatus = CFE_ES_RunStatus_APP_RUN;
 
-    CFE_ES_PerfLogEntry(CI_MAIN_TASK_PERF_ID);
+    CFE_ES_PerfLogEntry(CI_LAB_MAIN_TASK_PERF_ID);
 
-    CI_TaskInit();
+    CI_LAB_TaskInit();
 
     /*
     ** CI Runloop
     */
     while (CFE_ES_RunLoop(&RunStatus) == true)
     {
-        CFE_ES_PerfLogExit(CI_MAIN_TASK_PERF_ID);
+        CFE_ES_PerfLogExit(CI_LAB_MAIN_TASK_PERF_ID);
 
         /* Pend on receipt of command packet -- timeout set to 500 millisecs */
-        status = CFE_SB_RcvMsg(&CIMsgPtr, CI_CommandPipe, 500);
+        status = CFE_SB_RcvMsg(&CI_LAB_Global.MsgPtr, CI_LAB_Global.CommandPipe, 500);
 
-        CFE_ES_PerfLogEntry(CI_MAIN_TASK_PERF_ID);
+        CFE_ES_PerfLogEntry(CI_LAB_MAIN_TASK_PERF_ID);
 
         if (status == CFE_SUCCESS)
         {
-            CI_ProcessCommandPacket();
+            CI_LAB_ProcessCommandPacket();
         }
 
         /* Regardless of packet vs timeout, always process uplink queue      */
-        if (CI_SocketConnected)
+        if (CI_LAB_Global.SocketConnected)
         {
-            CI_ReadUpLink();
+            CI_LAB_ReadUpLink();
         }
     }
 
@@ -126,73 +143,70 @@ void CI_Lab_AppMain(void)
 ** This function will be called in the event that the CI app is killed.
 ** It will close the network socket for CI
 */
-void CI_delete_callback(void)
+void CI_LAB_delete_callback(void)
 {
     OS_printf("CI delete callback -- Closing CI Network socket.\n");
-    close(CI_SocketID);
+    OS_close(CI_LAB_Global.SocketID);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
 /*                                                                            */
-/* CI_TaskInit() -- CI initialization                                         */
+/* CI_LAB_TaskInit() -- CI initialization                                     */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-void CI_TaskInit(void)
+void CI_LAB_TaskInit(void)
 {
+    int32 status;
+
+    memset(&CI_LAB_Global, 0, sizeof(CI_LAB_Global));
+
     CFE_ES_RegisterApp();
 
-    CFE_EVS_Register(CI_EventFilters, sizeof(CI_EventFilters) / sizeof(CFE_EVS_BinFilter_t),
+    CFE_EVS_Register(CI_LAB_EventFilters, sizeof(CI_LAB_EventFilters) / sizeof(CFE_EVS_BinFilter_t),
                      CFE_EVS_EventFilter_BINARY);
 
-    CFE_SB_CreatePipe(&CI_CommandPipe, CI_PIPE_DEPTH, "CI_LAB_CMD_PIPE");
-    CFE_SB_Subscribe(CI_LAB_CMD_MID, CI_CommandPipe);
-    CFE_SB_Subscribe(CI_LAB_SEND_HK_MID, CI_CommandPipe);
+    CFE_SB_CreatePipe(&CI_LAB_Global.CommandPipe, CI_LAB_PIPE_DEPTH, "CI_LAB_CMD_PIPE");
+    CFE_SB_Subscribe(CI_LAB_CMD_MID, CI_LAB_Global.CommandPipe);
+    CFE_SB_Subscribe(CI_LAB_SEND_HK_MID, CI_LAB_Global.CommandPipe);
 
-    if ((CI_SocketID = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+    status = OS_SocketOpen(&CI_LAB_Global.SocketID, OS_SocketDomain_INET, OS_SocketType_DATAGRAM);
+    if (status != OS_SUCCESS)
     {
-        CFE_EVS_SendEvent(CI_SOCKETCREATE_ERR_EID, CFE_EVS_EventType_ERROR, "CI: create socket failed = %d", errno);
+        CFE_EVS_SendEvent(CI_LAB_SOCKETCREATE_ERR_EID,CFE_EVS_EventType_ERROR,"CI: create socket failed = %d", (int)status);
     }
     else
     {
-        memset(&CI_SocketAddress, 0, sizeof(CI_SocketAddress));
-        CI_SocketAddress.sin_family      = AF_INET;
-        CI_SocketAddress.sin_addr.s_addr = htonl(INADDR_ANY);
-        CI_SocketAddress.sin_port        = htons(cfgCI_PORT);
+        OS_SocketAddrInit(&CI_LAB_Global.SocketAddress, OS_SocketDomain_INET);
+        OS_SocketAddrSetPort(&CI_LAB_Global.SocketAddress, cfgCI_LAB_PORT);
 
-        if ((bind(CI_SocketID, (struct sockaddr *)&CI_SocketAddress, sizeof(CI_SocketAddress)) < 0))
+        status = OS_SocketBind(CI_LAB_Global.SocketID, &CI_LAB_Global.SocketAddress);
+
+        if ( status != OS_SUCCESS )
         {
-            CFE_EVS_SendEvent(CI_SOCKETBIND_ERR_EID, CFE_EVS_EventType_ERROR, "CI: bind socket failed = %d", errno);
+            CFE_EVS_SendEvent(CI_LAB_SOCKETBIND_ERR_EID,CFE_EVS_EventType_ERROR,"CI: bind socket failed = %d", (int)status);
         }
         else
         {
-            CI_SocketConnected = true;
-#ifdef _HAVE_FCNTL_
-            /*
-            ** Set the socket to non-blocking
-            ** This is not available to vxWorks, so it has to be
-            ** Conditionally compiled in
-            */
-            fcntl(CI_SocketID, F_SETFL, O_NONBLOCK);
-#endif
+            CI_LAB_Global.SocketConnected = true;
         }
     }
 
-    CI_ResetCounters();
+    CI_LAB_ResetCounters_Internal();
 
     /*
     ** Install the delete handler
     */
-    OS_TaskInstallDeleteHandler(&CI_delete_callback);
+    OS_TaskInstallDeleteHandler(&CI_LAB_delete_callback);
 
-    CFE_SB_InitMsg(&CI_HkTelemetryPkt, CI_LAB_HK_TLM_MID, CI_LAB_HK_TLM_LNGTH, true);
+    CFE_SB_InitMsg(&CI_LAB_Global.HkBuffer.HkTlm, CI_LAB_HK_TLM_MID, CI_LAB_HK_TLM_LNGTH, true);
 
-    CFE_EVS_SendEvent(CI_STARTUP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI Lab Initialized.  Version %d.%d.%d.%d",
+    CFE_EVS_SendEvent(CI_LAB_STARTUP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI Lab Initialized.  Version %d.%d.%d.%d",
                       CI_LAB_MAJOR_VERSION, CI_LAB_MINOR_VERSION, CI_LAB_REVISION, CI_LAB_MISSION_REV);
 
-} /* End of CI_TaskInit() */
+} /* End of CI_LAB_TaskInit() */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*  Name:  CI_ProcessCommandPacket                                            */
+/*  Name:  CI_LAB_ProcessCommandPacket                                        */
 /*                                                                            */
 /*  Purpose:                                                                  */
 /*     This routine will process any packet that is received on the CI command*/
@@ -203,74 +217,53 @@ void CI_TaskInit(void)
 /*        3. Request for housekeeping telemetry packet (from HS task)         */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * *  * *  * * * * */
-void CI_ProcessCommandPacket(void)
+void CI_LAB_ProcessCommandPacket(void)
 {
     CFE_SB_MsgId_t MsgId;
-    MsgId = CFE_SB_GetMsgId(CIMsgPtr);
+    MsgId = CFE_SB_GetMsgId(CI_LAB_Global.MsgPtr);
 
     switch (MsgId)
     {
         case CI_LAB_CMD_MID:
-            CI_ProcessGroundCommand();
+            CI_LAB_ProcessGroundCommand();
             break;
 
         case CI_LAB_SEND_HK_MID:
-            CI_ReportHousekeeping();
+            CI_LAB_ReportHousekeeping((const CCSDS_CommandPacket_t *)CI_LAB_Global.MsgPtr);
             break;
 
         default:
-            CI_HkTelemetryPkt.ci_command_error_count++;
-            CFE_EVS_SendEvent(CI_COMMAND_ERR_EID, CFE_EVS_EventType_ERROR, "CI: invalid command packet,MID = 0x%x",
+            CI_LAB_Global.HkBuffer.HkTlm.Payload.CommandErrorCounter++;
+            CFE_EVS_SendEvent(CI_LAB_COMMAND_ERR_EID, CFE_EVS_EventType_ERROR, "CI: invalid command packet,MID = 0x%x",
                               MsgId);
             break;
     }
 
     return;
 
-} /* End CI_ProcessCommandPacket */
+} /* End CI_LAB_ProcessCommandPacket */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 /*                                                                            */
-/* CI_ProcessGroundCommand() -- CI ground commands                            */
+/* CI_LAB_ProcessGroundCommand() -- CI ground commands                        */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
-void CI_ProcessGroundCommand(void)
+void CI_LAB_ProcessGroundCommand(void)
 {
     uint16 CommandCode;
 
-    CommandCode = CFE_SB_GetCmdCode(CIMsgPtr);
+    CommandCode = CFE_SB_GetCmdCode(CI_LAB_Global.MsgPtr);
 
     /* Process "known" CI task ground commands */
     switch (CommandCode)
     {
-        case CI_NOOP_CC:
-            CI_HkTelemetryPkt.ci_command_count++;
-            CFE_EVS_SendEvent(CI_COMMANDNOP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: NOOP command");
+        case CI_LAB_NOOP_CC:
+            CI_LAB_Noop((const CI_LAB_Noop_t *)CI_LAB_Global.MsgPtr);
             break;
 
-        case CI_RESET_COUNTERS_CC:
-            CI_ResetCounters();
-            break;
-
-        case CI_MODIFY_PDU_FILESIZE_CC:
-            CI_ModifyFileSizeCmd(CIMsgPtr);
-            break;
-
-        case CI_CORRUPT_PDU_CHECKSUM_CC:
-            CI_CorruptChecksumCmd(CIMsgPtr);
-            break;
-
-        case CI_DROP_PDUS_CC:
-            CI_DropPDUCmd(CIMsgPtr);
-            break;
-
-        case CI_CAPTURE_PDUS_CC:
-            CI_CapturePDUsCmd(CIMsgPtr);
-            break;
-
-        case CI_STOP_PDU_CAPTURE_CC:
-            CI_StopPDUCaptureCmd(CIMsgPtr);
+        case CI_LAB_RESET_COUNTERS_CC:
+            CI_LAB_ResetCounters((const CI_LAB_ResetCounters_t *)CI_LAB_Global.MsgPtr);
             break;
 
         /* default case already found during FC vs length test */
@@ -280,10 +273,42 @@ void CI_ProcessGroundCommand(void)
 
     return;
 
-} /* End of CI_ProcessGroundCommand() */
+} /* End of CI_LAB_ProcessGroundCommand() */
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*  Name:  CI_LAB_Noop                                                         */
+/*                                                                             */
+/*  Purpose:                                                                   */
+/*     Handle NOOP command packets                                             */
+/*                                                                             */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+int32 CI_LAB_Noop(const CI_LAB_Noop_t *data)
+{
+    /* Does everything the name implies */
+    CI_LAB_Global.HkBuffer.HkTlm.Payload.CommandCounter++;
+
+    CFE_EVS_SendEvent(CI_LAB_COMMANDNOP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: NOOP command");
+
+    return CFE_SUCCESS;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*  Name:  CI_LAB_ResetCounters                                                */
+/*                                                                             */
+/*  Purpose:                                                                   */
+/*     Handle ResetCounters command packets                                    */
+/*                                                                             */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+int32 CI_LAB_ResetCounters(const CI_LAB_ResetCounters_t *data)
+{
+    CFE_EVS_SendEvent(CI_LAB_COMMANDRST_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: RESET command");
+    CI_LAB_ResetCounters_Internal();
+    return CFE_SUCCESS;
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*  Name:  CI_ReportHousekeeping                                              */
+/*  Name:  CI_LAB_ReportHousekeeping                                          */
 /*                                                                            */
 /*  Purpose:                                                                  */
 /*         This function is triggered in response to a task telemetry request */
@@ -291,494 +316,81 @@ void CI_ProcessGroundCommand(void)
 /*         telemetry, packetize it and send it to the housekeeping task via   */
 /*         the software bus                                                   */
 /* * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * *  * *  * * * * */
-void CI_ReportHousekeeping(void)
+int32 CI_LAB_ReportHousekeeping(const CCSDS_CommandPacket_t *data)
 {
-    CI_HkTelemetryPkt.SocketConnected = CI_SocketConnected;
-    CFE_SB_TimeStampMsg((CFE_SB_Msg_t *)&CI_HkTelemetryPkt);
-    CFE_SB_SendMsg((CFE_SB_Msg_t *)&CI_HkTelemetryPkt);
-    return;
+    CI_LAB_Global.HkBuffer.HkTlm.Payload.SocketConnected = CI_LAB_Global.SocketConnected;
+    CFE_SB_TimeStampMsg(&CI_LAB_Global.HkBuffer.MsgHdr);
+    CFE_SB_SendMsg(&CI_LAB_Global.HkBuffer.MsgHdr);
+    return CFE_SUCCESS;
 
-} /* End of CI_ReportHousekeeping() */
+} /* End of CI_LAB_ReportHousekeeping() */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*  Name:  CI_ResetCounters                                                   */
+/*  Name:  CI_LAB_ResetCounters_Internal                                      */
 /*                                                                            */
 /*  Purpose:                                                                  */
 /*         This function resets all the global counter variables that are     */
 /*         part of the task telemetry.                                        */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * *  * *  * * * * */
-void CI_ResetCounters(void)
+void CI_LAB_ResetCounters_Internal(void)
 {
     /* Status of commands processed by CI task */
-    CI_HkTelemetryPkt.ci_command_count       = 0;
-    CI_HkTelemetryPkt.ci_command_error_count = 0;
+    CI_LAB_Global.HkBuffer.HkTlm.Payload.CommandCounter       = 0;
+    CI_LAB_Global.HkBuffer.HkTlm.Payload.CommandErrorCounter = 0;
 
     /* Status of packets ingested by CI task */
-    CI_HkTelemetryPkt.IngestPackets = 0;
-    CI_HkTelemetryPkt.IngestErrors  = 0;
-
-    /* Status of packets ingested by CI task */
-    CI_HkTelemetryPkt.FDPdusDropped  = 0;
-    CI_HkTelemetryPkt.EOFPdusDropped = 0;
-    CI_HkTelemetryPkt.FINPdusDropped = 0;
-    CI_HkTelemetryPkt.ACKPdusDropped = 0;
-    CI_HkTelemetryPkt.MDPdusDropped  = 0;
-    CI_HkTelemetryPkt.NAKPdusDropped = 0;
-    CI_HkTelemetryPkt.PDUsCaptured   = 0;
-
-    CFE_EVS_SendEvent(CI_COMMANDRST_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: RESET command");
-    return;
-
-} /* End of CI_ResetCounters() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*                                                                            */
-/* CI_ModifyFileSizeCmd() -- task ground command ()                           */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-void CI_ModifyFileSizeCmd(CFE_SB_MsgPtr_t msg)
-{
-    uint16                  ExpectedLength = sizeof(CI_ModifyFileSizeCmd_t);
-    CI_ModifyFileSizeCmd_t *CmdPtr;
-
-    /*
-     ** Verify command packet length...
-     */
-    if (CI_VerifyCmdLength(msg, ExpectedLength))
-    {
-        CmdPtr = ((CI_ModifyFileSizeCmd_t *)msg);
-
-        /* Get the direction to modify */
-        if (CmdPtr->Direction == PDU_SIZE_ADD)
-            PDUFileSizeAdjustment = CmdPtr->Amount;
-        else
-            PDUFileSizeAdjustment = 0 - CmdPtr->Amount;
-
-        /* Set the flag to modify File Size */
-        adjustFileSize = true;
-
-        CI_HkTelemetryPkt.ci_command_count++;
-        CFE_EVS_SendEvent(CI_MOD_PDU_FILESIZE_CMD_EID, CFE_EVS_EventType_DEBUG, "CI: Modify PDU File Size\n");
-    }
+    CI_LAB_Global.HkBuffer.HkTlm.Payload.IngestPackets = 0;
+    CI_LAB_Global.HkBuffer.HkTlm.Payload.IngestErrors  = 0;
 
     return;
 
-} /* End of CI_ModifyFileSizeCmd() */
+} /* End of CI_LAB_ResetCounters() */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 /*                                                                            */
-/* CI_CorruptChecksumCmd() -- task ground command ()                          */
+/* CI_LAB_ReadUpLink() --                                                     */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-void CI_CorruptChecksumCmd(CFE_SB_MsgPtr_t msg)
+void CI_LAB_ReadUpLink(void)
 {
-    uint16 ExpectedLength = sizeof(CI_NoArgsCmd_t);
-
-    /*
-     ** Verify command packet length...
-     */
-    if (CI_VerifyCmdLength(msg, ExpectedLength))
-    {
-        /* Set the flag to modify File Size */
-        corruptChecksum = true;
-
-        CI_HkTelemetryPkt.ci_command_count++;
-        CFE_EVS_SendEvent(CI_CORRUPT_CHECKSUM_CMD_EID, CFE_EVS_EventType_DEBUG, "CI: Corrupt PDU Checksum\n");
-    }
-
-    return;
-
-} /* End of CI_CorruptChecksumCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*                                                                            */
-/* CI_DropPDUCmd() -- task ground command ()                                  */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-void CI_DropPDUCmd(CFE_SB_MsgPtr_t msg)
-{
-    uint16           ExpectedLength = sizeof(CI_DropPDUCmd_t);
-    CI_DropPDUCmd_t *CmdPtr;
-
-    /*
-     ** Verify command packet length...
-     */
-    if (CI_VerifyCmdLength(msg, ExpectedLength))
-    {
-        CmdPtr = ((CI_DropPDUCmd_t *)msg);
-
-        /* Get the PDU Type */
-        if (CmdPtr->PDUType == FILE_DATA_PDU)
-        {
-            dropFileData    = true;
-            dropFileDataCnt = CmdPtr->PDUsToDrop;
-        }
-        else if (CmdPtr->PDUType == EOF_PDU)
-        {
-            dropEOF    = true;
-            dropEOFCnt = CmdPtr->PDUsToDrop;
-        }
-        else if (CmdPtr->PDUType == FIN_PDU)
-        {
-            dropFIN    = true;
-            dropFINCnt = CmdPtr->PDUsToDrop;
-        }
-        else if (CmdPtr->PDUType == ACK_PDU)
-        {
-            dropACK    = true;
-            dropACKCnt = CmdPtr->PDUsToDrop;
-        }
-        else if (CmdPtr->PDUType == META_DATA_PDU)
-        {
-            dropMetaData    = true;
-            dropMetaDataCnt = CmdPtr->PDUsToDrop;
-        }
-        else if (CmdPtr->PDUType == NAK_PDU)
-        {
-            dropNAK    = true;
-            dropNAKCnt = CmdPtr->PDUsToDrop;
-        }
-
-        CI_HkTelemetryPkt.ci_command_count++;
-        CFE_EVS_SendEvent(CI_DROP_PDU_CMD_EID, CFE_EVS_EventType_DEBUG, "CI: Drop PDU\n");
-    }
-
-    return;
-
-} /* End of CI_DropPDUCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*                                                                            */
-/* CI_CapturePDUsCmd() -- task ground command ()                              */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-void CI_CapturePDUsCmd(CFE_SB_MsgPtr_t msg)
-{
-    uint16              ExpectedLength = sizeof(CI_CapturePDUCmd_t);
-    CI_CapturePDUCmd_t *CmdPtr;
-
-    /*
-     ** Verify command packet length...
-     */
-    if (CI_VerifyCmdLength(msg, ExpectedLength))
-    {
-        CmdPtr = ((CI_CapturePDUCmd_t *)msg);
-
-        if (CmdPtr->PDUMsgID <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID)
-        {
-            /* Save the messageID in a global variable */
-            PDUMessageID = CmdPtr->PDUMsgID;
-
-            CI_HkTelemetryPkt.ci_command_count++;
-            CFE_EVS_SendEvent(CI_CAPTUREPDU_CMD_EID, CFE_EVS_EventType_DEBUG,
-                              "CI: PDU Capture initialized for 0x%04X\n", CmdPtr->PDUMsgID);
-        }
-        else
-        {
-            CI_HkTelemetryPkt.ci_command_error_count++;
-            CFE_EVS_SendEvent(CI_INVALID_MSGID_ERR_EID, CFE_EVS_EventType_ERROR, "CI: Invalid PDU MsgID: 0x%04x\n",
-                              CmdPtr->PDUMsgID);
-        }
-    }
-
-    return;
-
-} /* End of CI_CapturePDUsCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*                                                                            */
-/* CI_StopPDUCaptureCmd() -- task ground command ()                           */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-void CI_StopPDUCaptureCmd(CFE_SB_MsgPtr_t msg)
-{
-    uint16 ExpectedLength = sizeof(CI_NoArgsCmd_t);
-
-    /*
-     ** Verify command packet length...
-     */
-    if (CI_VerifyCmdLength(msg, ExpectedLength))
-    {
-        if (PDUMessageID != 0)
-        {
-            CI_HkTelemetryPkt.ci_command_count++;
-            CFE_EVS_SendEvent(CI_STOP_PDUCAPTURE_CMD_EID, CFE_EVS_EventType_DEBUG,
-                              "CI: PDU Capture stopped for 0x%04X\n", PDUMessageID);
-
-            /* Set the global data back to there initial values */
-            PDUMessageID          = 0;
-            adjustFileSize        = false;
-            PDUFileSizeAdjustment = 0;
-            dropFileData          = false;
-            dropFileDataCnt       = 0;
-            dropEOF               = false;
-            dropEOFCnt            = 0;
-            dropFIN               = false;
-            dropFINCnt            = 0;
-            dropACK               = false;
-            dropACKCnt            = 0;
-            dropMetaData          = false;
-            dropMetaDataCnt       = 0;
-            dropNAK               = false;
-            dropNAKCnt            = 0;
-            corruptChecksum       = false;
-        }
-        else
-        {
-            CI_HkTelemetryPkt.ci_command_error_count++;
-            CFE_EVS_SendEvent(CI_NOCAPTURE_ERR_EID, CFE_EVS_EventType_ERROR, "CI: PDU Capture is not enabled\n");
-        }
-    }
-
-    return;
-
-} /* End of CI_StopPDUCaptureCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*                                                                            */
-/* CI_ProcessPDU() --                                                         */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-void CI_ProcessPDU(void)
-{
-    CF_PDU_Hdr_t * PduHdrPtr;
-    uint8 *        PduDataPtr;
-    uint8 *        IncomingPduPtr;
-    uint8          PduData0;
-    uint8          EntityIdBytes, TransSeqBytes, PduHdrBytes;
-    CFE_SB_MsgId_t MessageID = CFE_SB_GetMsgId(CI_IngestPointer);
-    bool           sendToSB  = false;
-    uint32 *       checkSumPtr;
-    uint32 *       fileSizePtr;
-
-    if (MessageID == PDUMessageID)
-    {
-        IncomingPduPtr = ((uint8 *)CI_IngestPointer);
-        if (CFE_TST(MessageID, 12) != 0)
-        {
-            IncomingPduPtr += CFE_SB_CMD_HDR_SIZE;
-        }
-        else
-        {
-            IncomingPduPtr += CFE_SB_TLM_HDR_SIZE;
-        }
-
-        PduHdrPtr = (CF_PDU_Hdr_t *)IncomingPduPtr;
-
-        /* calculate size of incoming pdu to ensure we don't overflow the buf */
-        EntityIdBytes = ((PduHdrPtr->Octet4 >> 4) & 0x07) + 1;
-        TransSeqBytes = (PduHdrPtr->Octet4 & 0x07) + 1;
-        PduHdrBytes   = 4 + (EntityIdBytes * 2) + TransSeqBytes;
-
-        /*    OS_printf("CI: Captured PDU with length = %d\n",PduHdrPtr->PDataLen); */
-
-        CI_HkTelemetryPkt.PDUsCaptured++;
-
-        /* Check if a File Data PDU  was rcv'd */
-        if (CFE_TST(PduHdrPtr->Octet1, 4))
-        {
-            OS_printf("CI: File Data PDU rcv'd\n");
-            if ((dropFileData == true) && (dropFileDataCnt > 0))
-            {
-                dropFileDataCnt--;
-                OS_printf("CI: File Data PDU dropped\n");
-                CI_HkTelemetryPkt.FDPdusDropped++;
-            }
-            else
-            {
-                sendToSB     = true;
-                dropFileData = false;
-            }
-        }
-        else
-        {
-            /* Not a File Data PDU */
-            PduDataPtr = (uint8 *)PduHdrPtr + PduHdrBytes;
-            PduData0   = *PduDataPtr;
-
-            OS_printf("CI: PDU Data Type = %d\n", PduData0);
-            switch (PduData0)
-            {
-                case 4:
-                    OS_printf("CI: EOF PDU rcv'd\n");
-                    if ((dropEOF == true) && (dropEOFCnt > 0))
-                    {
-                        dropEOFCnt--;
-                        OS_printf("CI: EOF PDU dropped\n");
-                        CI_HkTelemetryPkt.EOFPdusDropped++;
-                    }
-                    else
-                    {
-                        sendToSB = true;
-                        dropEOF  = false;
-                    }
-
-                    PduDataPtr += 2;
-                    checkSumPtr = (uint32 *)PduDataPtr;
-                    fileSizePtr = checkSumPtr + 1;
-
-                    if (corruptChecksum == true)
-                    {
-                        OS_printf("CI: good checksum = %x\n", (unsigned int)*checkSumPtr);
-                        /* Corrupt the checksum */
-                        *checkSumPtr = 0x12345678;
-                        OS_printf("CI: corrupted checksum = %x\n", (unsigned int)*checkSumPtr);
-                        corruptChecksum = false;
-                    }
-
-                    if (adjustFileSize == true)
-                    {
-                        OS_printf("CI: good file size = %d\n", (int)*fileSizePtr);
-                        /* Adjust the file size */
-                        *fileSizePtr += PDUFileSizeAdjustment;
-                        OS_printf("CI: adjusted file size = %d\n", (int)*fileSizePtr);
-                        adjustFileSize = false;
-                    }
-
-                    break;
-
-                case 5:
-                    OS_printf("CI: FIN PDU rcv'd\n");
-                    if ((dropFIN == true) && (dropFINCnt > 0))
-                    {
-                        dropFINCnt--;
-                        OS_printf("CI: FIN PDU dropped\n");
-                        CI_HkTelemetryPkt.FINPdusDropped++;
-                    }
-                    else
-                    {
-                        sendToSB = true;
-                        dropFIN  = false;
-                    }
-
-                    break;
-
-                case 6:
-                    OS_printf("CI: ACK PDU rcv'd\n");
-                    if ((dropACK == true) && (dropACKCnt > 0))
-                    {
-                        dropACKCnt--;
-                        OS_printf("CI: ACK PDU dropped\n");
-                        CI_HkTelemetryPkt.ACKPdusDropped++;
-                    }
-                    else
-                    {
-                        sendToSB = true;
-                        dropACK  = false;
-                    }
-
-                    break;
-
-                case 7:
-                    OS_printf("CI: Meta Data PDU rcv'd\n");
-                    if ((dropMetaData == true) && (dropMetaDataCnt > 0))
-                    {
-                        dropMetaDataCnt--;
-                        OS_printf("CI: Meta Data PDU dropped\n");
-                        CI_HkTelemetryPkt.MDPdusDropped++;
-                    }
-                    else
-                    {
-                        sendToSB     = true;
-                        dropMetaData = false;
-                    }
-
-                    break;
-
-                case 8:
-                    OS_printf("CI: NAK PDU rcv'd\n");
-                    if ((dropNAK == true) && (dropNAKCnt > 0))
-                    {
-                        dropNAKCnt--;
-                        OS_printf("CI: NAK PDU dropped\n");
-                        CI_HkTelemetryPkt.NAKPdusDropped++;
-                    }
-                    else
-                    {
-                        sendToSB = true;
-                        dropNAK  = false;
-                    }
-
-                    break;
-
-                default:
-                    break;
-            }
-        }
-    }
-    else
-    {
-        sendToSB = true;
-    }
-
-    if (sendToSB == true)
-    {
-        CFE_ES_PerfLogEntry(CI_SOCKET_RCV_PERF_ID);
-        CI_HkTelemetryPkt.IngestPackets++;
-        CFE_SB_SendMsg(CI_IngestPointer);
-        CFE_ES_PerfLogExit(CI_SOCKET_RCV_PERF_ID);
-    }
-
-    return;
-
-} /* End of CI_ProcessPDU() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*                                                                            */
-/* CI_ReadUpLink() --                                                         */
-/*                                                                            */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-void CI_ReadUpLink(void)
-{
-    socklen_t addr_len;
-    int       i;
-    int       status;
-
-    addr_len = sizeof(CI_SocketAddress);
-
-    memset(&CI_SocketAddress, 0, sizeof(CI_SocketAddress));
+    int i;
+    int32 status;
 
     for (i = 0; i <= 10; i++)
     {
-        status = recvfrom(CI_SocketID, (char *)&CI_IngestBuffer[0], sizeof(CI_IngestBuffer), MSG_DONTWAIT,
-                          (struct sockaddr *)&CI_SocketAddress, &addr_len);
-
-        if ((status < 0) && (errno == EWOULDBLOCK))
-            break; /* no (more) messages */
+        status = OS_SocketRecvFrom(CI_LAB_Global.SocketID, CI_LAB_Global.IngestBuffer.bytes, sizeof(CI_LAB_Global.IngestBuffer), &CI_LAB_Global.SocketAddress, OS_CHECK);
+        if (status >= ((int32)CFE_SB_CMD_HDR_SIZE) &&
+                status <= ((int32)CI_LAB_MAX_INGEST))
+        {
+            CFE_ES_PerfLogEntry(CI_LAB_SOCKET_RCV_PERF_ID);
+            CI_LAB_Global.HkBuffer.HkTlm.Payload.IngestPackets++;
+            status = CFE_SB_SendMsg(&CI_LAB_Global.IngestBuffer.MsgHdr);
+            CFE_ES_PerfLogExit(CI_LAB_SOCKET_RCV_PERF_ID);
+        }
+        else if (status > 0)
+        {
+            /* bad size, report as ingest error */
+            CI_LAB_Global.HkBuffer.HkTlm.Payload.IngestErrors++;
+            CFE_EVS_SendEvent(CI_LAB_INGEST_ERR_EID,CFE_EVS_EventType_ERROR, "CI: L%d, cmd %0x %0x dropped, bad length=%d\n", __LINE__,
+                    CI_LAB_Global.IngestBuffer.hwords[0], CI_LAB_Global.IngestBuffer.hwords[1], (int)status);
+        }
         else
         {
-            if (status <= CI_MAX_INGEST)
-            {
-                if (PDUMessageID != 0)
-                {
-                    CI_ProcessPDU();
-                }
-                else
-                {
-                    CFE_ES_PerfLogEntry(CI_SOCKET_RCV_PERF_ID);
-                    CI_HkTelemetryPkt.IngestPackets++;
-                    CFE_SB_SendMsg(CI_IngestPointer);
-                    CFE_ES_PerfLogExit(CI_SOCKET_RCV_PERF_ID);
-                }
-            }
-            else
-            {
-                CI_HkTelemetryPkt.IngestErrors++;
-            }
+            break; /* no (more) messages */
         }
     }
 
     return;
 
-} /* End of CI_ReadUpLink() */
+} /* End of CI_LAB_ReadUpLink() */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 /*                                                                            */
-/* CI_VerifyCmdLength() -- Verify command packet length                       */
+/* CI_LAB_VerifyCmdLength() -- Verify command packet length                   */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-bool CI_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength)
+bool CI_LAB_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength)
 {
     bool   result       = true;
     uint16 ActualLength = CFE_SB_GetTotalMsgLength(msg);
@@ -791,13 +403,13 @@ bool CI_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength)
         CFE_SB_MsgId_t MessageID   = CFE_SB_GetMsgId(msg);
         uint16         CommandCode = CFE_SB_GetCmdCode(msg);
 
-        CFE_EVS_SendEvent(CI_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
+        CFE_EVS_SendEvent(CI_LAB_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Invalid msg length: ID = 0x%X,  CC = %d, Len = %d, Expected = %d", MessageID, CommandCode,
                           ActualLength, ExpectedLength);
         result = false;
-        CI_HkTelemetryPkt.ci_command_error_count++;
+        CI_LAB_Global.HkBuffer.HkTlm.Payload.CommandErrorCounter++;
     }
 
     return (result);
 
-} /* End of CI_VerifyCmdLength() */
+} /* End of CI_LAB_VerifyCmdLength() */

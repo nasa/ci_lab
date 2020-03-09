@@ -31,7 +31,6 @@
 /*
 ** Required header files...
 */
-#include "network_includes.h"
 #include "common_types.h"
 #include "cfe_error.h"
 #include "cfe_evs.h"
@@ -47,45 +46,28 @@
 
 /****************************************************************************/
 
-#define cfgCI_PORT    1234
-#define CI_MAX_INGEST 768
-#define CI_PIPE_DEPTH 32
+#define cfgCI_LAB_PORT    1234
+#define CI_LAB_MAX_INGEST 768
+#define CI_LAB_PIPE_DEPTH 32
 
 /************************************************************************
 ** Type Definitions
 *************************************************************************/
-typedef struct
-{
-    uint8  Octet1;
-    uint16 PDataLen;
-    uint8  Octet4;
-    uint16 SrcEntityId;
-    uint32 TransSeqNum;
-    uint16 DstEntityId;
-
-} OS_PACK CF_PDU_Hdr_t;
 
 /****************************************************************************/
 /*
 ** Local function prototypes...
 **
-** Note: Except for the entry point (CI_task_main), these
+** Note: Except for the entry point (CI_LAB_AppMain), these
 **       functions are not called from any other source module.
 */
-void CI_task_main(void);
-void CI_TaskInit(void);
-void CI_ProcessCommandPacket(void);
-void CI_ProcessGroundCommand(void);
-void CI_ReportHousekeeping(void);
-void CI_ResetCounters(void);
-void CI_ModifyFileSizeCmd(CFE_SB_MsgPtr_t msg);
-void CI_CorruptChecksumCmd(CFE_SB_MsgPtr_t msg);
-void CI_DropPDUCmd(CFE_SB_MsgPtr_t msg);
-void CI_CapturePDUsCmd(CFE_SB_MsgPtr_t msg);
-void CI_StopPDUCaptureCmd(CFE_SB_MsgPtr_t msg);
-void CI_ProcessPDU(void);
-void CI_ReadUpLink(void);
+void CI_Lab_AppMain(void);
+void CI_LAB_TaskInit(void);
+void CI_LAB_ProcessCommandPacket(void);
+void CI_LAB_ProcessGroundCommand(void);
+void CI_LAB_ResetCounters_Internal(void);
+void CI_LAB_ReadUpLink(void);
 
-bool CI_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength);
+bool CI_LAB_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength);
 
 #endif /* _ci_lab_app_h_ */

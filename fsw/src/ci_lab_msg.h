@@ -30,15 +30,10 @@
 #define _ci_lab_msg_h_
 
 /*
-** CI_Lab command codes
+** CI_LAB_Lab command codes
 */
-#define CI_NOOP_CC                 0
-#define CI_RESET_COUNTERS_CC       1
-#define CI_MODIFY_PDU_FILESIZE_CC  2
-#define CI_CORRUPT_PDU_CHECKSUM_CC 3
-#define CI_DROP_PDUS_CC            4
-#define CI_CAPTURE_PDUS_CC         5
-#define CI_STOP_PDU_CAPTURE_CC     6
+#define CI_LAB_NOOP_CC                 0
+#define CI_LAB_RESET_COUNTERS_CC       1
 
 /*************************************************************************/
 /*
@@ -48,66 +43,43 @@ typedef struct
 {
     uint8 CmdHeader[CFE_SB_CMD_HDR_SIZE];
 
-} CI_NoArgsCmd_t;
+} CI_LAB_NoArgsCmd_t;
 
 /*
-** Type definition (Capture PDUs command structure)
-*/
-typedef struct
-{
-    uint8          CmdHeader[CFE_SB_CMD_HDR_SIZE];
-    CFE_SB_MsgId_t PDUMsgID; /* Message ID of the downlinked PDUs to capture */
+ * Neither the Noop nor ResetCounters command
+ * have any payload, but should still "reserve" a unique
+ * structure type to employ a consistent handler pattern.
+ *
+ * This matches the pattern in CFE core and other modules.
+ */
+typedef CI_LAB_NoArgsCmd_t  CI_LAB_Noop_t;
+typedef CI_LAB_NoArgsCmd_t  CI_LAB_ResetCounters_t;
 
-} CI_CapturePDUCmd_t;
-
-/*
-** Type definition (Modify PDU file size command structure)
-*/
-typedef struct
-{
-    uint8  CmdHeader[CFE_SB_CMD_HDR_SIZE];
-    uint16 Direction; /* Add or Subtract */
-    uint16 Amount;    /* The value to add or subtract from the file size*/
-
-} CI_ModifyFileSizeCmd_t;
-
-/*
-** Type definition (Drop PDU command structure)
-*/
-typedef struct
-{
-    uint8 CmdHeader[CFE_SB_CMD_HDR_SIZE];
-    uint8 PDUType;    /* The Type of PDU to capture and drop */
-    uint8 PDUsToDrop; /* The # of rcvd PDUs of the type to drop */
-
-} CI_DropPDUCmd_t;
 
 /*************************************************************************/
 /*
-** Type definition (CI_Lab housekeeping)...
+** Type definition (CI_LAB_Lab housekeeping)...
 */
 typedef struct
 {
-
-    uint8  TlmHeader[CFE_SB_TLM_HDR_SIZE];
-    uint8  ci_command_error_count;
-    uint8  ci_command_count;
-    uint8  ci_xsums_enabled;
+    uint8  CommandErrorCounter;
+    uint8  CommandCounter;
+    uint8  EnableChecksums;
     uint8  SocketConnected;
-    uint8  FDPdusDropped;
-    uint8  EOFPdusDropped;
-    uint8  FINPdusDropped;
-    uint8  ACKPdusDropped;
-    uint8  MDPdusDropped;
-    uint8  NAKPdusDropped;
-    uint8  spare[2];
+    uint8  Spare1[8];
     uint32 IngestPackets;
     uint32 IngestErrors;
-    uint32 PDUsCaptured;
+    uint32 Spare2;
 
-} OS_PACK ci_hk_tlm_t;
+} CI_LAB_HkTlm_Payload_t;
 
-#define CI_LAB_HK_TLM_LNGTH sizeof(ci_hk_tlm_t)
+typedef struct
+{
+    uint8  TlmHeader[CFE_SB_TLM_HDR_SIZE];
+    CI_LAB_HkTlm_Payload_t Payload;
+} OS_PACK CI_LAB_HkTlm_t;
+
+#define CI_LAB_HK_TLM_LNGTH sizeof(CI_LAB_HkTlm_t)
 
 #endif /* _ci_lab_msg_h_ */
 
