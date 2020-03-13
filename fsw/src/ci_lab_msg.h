@@ -30,7 +30,7 @@
 #define _ci_lab_msg_h_
 
 /*
-** CI_LAB_Lab command codes
+** CI_LAB command codes
 */
 #define CI_LAB_NOOP_CC           0
 #define CI_LAB_RESET_COUNTERS_CC 1
@@ -57,7 +57,7 @@ typedef CI_LAB_NoArgsCmd_t CI_LAB_ResetCounters_t;
 
 /*************************************************************************/
 /*
-** Type definition (CI_LAB_Lab housekeeping)...
+** Type definition (CI_LAB housekeeping)...
 */
 typedef struct
 {
