@@ -19,21 +19,24 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install clang-format-10
   - clang-format-10 --version
-
-
-script:
-  # Get bundle (doesn't populate submodules, not needed for style enforcement)
   - cd ..
   - git clone https://github.com/nasa/cFS.git
-  - mv ci_lab cFS/apps
-  - cd cFS/apps/ci_lab
-  # Enforce formatting
-  - find . -name "*.[ch]" -exec clang-format-10 -i -style=file {} +
-  - git diff > style_differences.txt
-  - |
-    if [[ -s style_differences.txt ]]; then
-      echo "You must fix style differences before submitting a pull request"
-      echo ""
-      cat style_differences.txt
-      exit -1
-    fi
+
+jobs:
+  include:
+    stage: style check
+      script:
+        # Get bundle (doesn't populate submodules, not needed for style enforcement)
+        - mv ci_lab cFS/apps
+        - cd cFS/apps/ci_lab
+        # Enforce formatting
+        - find . -name "*.[ch]" -exec clang-format-10 -i -style=file {} +
+        - git diff > style_differences.txt
+        - |
+          if [[ -s style_differences.txt ]]; then
+            echo "You must fix style differences before submitting a pull request"
+            echo ""
+            cat style_differences.txt
+            exit -1
+          fi
+    stage: bundle check
