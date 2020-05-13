@@ -225,7 +225,7 @@ void CI_LAB_ProcessCommandPacket(void)
     CFE_SB_MsgId_t MsgId;
     MsgId = CFE_SB_GetMsgId(CI_LAB_Global.MsgPtr);
 
-    switch (MsgId)
+    switch (CFE_SB_MsgIdToValue(MsgId))
     {
         case CI_LAB_CMD_MID:
             CI_LAB_ProcessGroundCommand();
@@ -238,7 +238,7 @@ void CI_LAB_ProcessCommandPacket(void)
         default:
             CI_LAB_Global.HkBuffer.HkTlm.Payload.CommandErrorCounter++;
             CFE_EVS_SendEvent(CI_LAB_COMMAND_ERR_EID, CFE_EVS_EventType_ERROR, "CI: invalid command packet,MID = 0x%x",
-                              MsgId);
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId));
             break;
     }
 
@@ -407,8 +407,9 @@ bool CI_LAB_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength)
         uint16         CommandCode = CFE_SB_GetCmdCode(msg);
 
         CFE_EVS_SendEvent(CI_LAB_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Invalid msg length: ID = 0x%X,  CC = %d, Len = %d, Expected = %d", MessageID, CommandCode,
-                          ActualLength, ExpectedLength);
+                          "Invalid msg length: ID = 0x%X,  CC = %u, Len = %u, Expected = %u",
+                          (unsigned int)CFE_SB_MsgIdToValue(MessageID), (unsigned int)CommandCode,
+                          (unsigned int)ActualLength, (unsigned int)ExpectedLength);
         result = false;
         CI_LAB_Global.HkBuffer.HkTlm.Payload.CommandErrorCounter++;
     }
