@@ -38,7 +38,6 @@
 #include "cfe_es.h"
 
 #include "osapi.h"
-#include "ccsds.h"
 
 #include <string.h>
 #include <errno.h>

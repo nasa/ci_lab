@@ -87,7 +87,7 @@ static CFE_EVS_BinFilter_t CI_LAB_EventFilters[] =
  */
 int32 CI_LAB_Noop(const CI_LAB_Noop_t *data);
 int32 CI_LAB_ResetCounters(const CI_LAB_ResetCounters_t *data);
-int32 CI_LAB_ReportHousekeeping(const CCSDS_CommandPacket_t *data);
+int32 CI_LAB_ReportHousekeeping(const CFE_SB_CmdHdr_t *data);
 
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /* CI_Lab_AppMain() -- Application entry point and main process loop          */
@@ -232,7 +232,7 @@ void CI_LAB_ProcessCommandPacket(void)
             break;
 
         case CI_LAB_SEND_HK_MID:
-            CI_LAB_ReportHousekeeping((const CCSDS_CommandPacket_t *)CI_LAB_Global.MsgPtr);
+            CI_LAB_ReportHousekeeping((const CFE_SB_CmdHdr_t *)CI_LAB_Global.MsgPtr);
             break;
 
         default:
@@ -318,7 +318,7 @@ int32 CI_LAB_ResetCounters(const CI_LAB_ResetCounters_t *data)
 /*         telemetry, packetize it and send it to the housekeeping task via   */
 /*         the software bus                                                   */
 /* * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * *  * *  * * * * */
-int32 CI_LAB_ReportHousekeeping(const CCSDS_CommandPacket_t *data)
+int32 CI_LAB_ReportHousekeeping(const CFE_SB_CmdHdr_t *data)
 {
     CI_LAB_Global.HkBuffer.HkTlm.Payload.SocketConnected = CI_LAB_Global.SocketConnected;
     CFE_SB_TimeStampMsg(&CI_LAB_Global.HkBuffer.MsgHdr);
