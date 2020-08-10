@@ -203,8 +203,8 @@ void CI_LAB_TaskInit(void)
 
     CFE_SB_InitMsg(&CI_LAB_Global.HkBuffer.HkTlm, CI_LAB_HK_TLM_MID, CI_LAB_HK_TLM_LNGTH, true);
 
-    CFE_EVS_SendEvent(CI_LAB_STARTUP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI Lab Initialized.  Version %d.%d.%d.%d",
-                      CI_LAB_MAJOR_VERSION, CI_LAB_MINOR_VERSION, CI_LAB_REVISION, CI_LAB_MISSION_REV);
+    CFE_EVS_SendEvent(CI_LAB_STARTUP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI Lab Initialized.%s",
+                      CI_LAB_VERSION_STRING);
 
 } /* End of CI_LAB_TaskInit() */
 
