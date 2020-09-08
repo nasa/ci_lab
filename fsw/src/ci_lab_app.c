@@ -63,7 +63,7 @@ typedef struct
     bool            SocketConnected;
     CFE_SB_PipeId_t CommandPipe;
     CFE_SB_MsgPtr_t MsgPtr;
-    uint32          SocketID;
+    osal_id_t       SocketID;
     OS_SockAddr_t   SocketAddress;
 
     CI_LAB_HkTlm_Buffer_t HkBuffer;
