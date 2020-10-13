@@ -8,6 +8,14 @@ ci_lab is a simple command uplink application that accepts CCSDS telecommand pac
 
 ## Version History
 
+
+### Development Build: 2.4.0-rc1+dev2
+
+- Update the SocketID field to be `osal_id_t` instead of uint32
+- Set Revision number to 99 for development version identifier in telemetry
+- See <https://github.com/nasa/ci_lab/pull/56>
+
+
 ### Development Build: 2.3.0+dev36
 
 - Add build name and build number to version reporting
