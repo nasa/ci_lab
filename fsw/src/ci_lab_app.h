@@ -36,6 +36,7 @@
 #include "cfe_evs.h"
 #include "cfe_sb.h"
 #include "cfe_es.h"
+#include "cfe_msg_api.h"
 
 #include "osapi.h"
 
@@ -67,6 +68,6 @@ void CI_LAB_ProcessGroundCommand(void);
 void CI_LAB_ResetCounters_Internal(void);
 void CI_LAB_ReadUpLink(void);
 
-bool CI_LAB_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength);
+bool CI_LAB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t ExpectedLength);
 
 #endif /* _ci_lab_app_h_ */

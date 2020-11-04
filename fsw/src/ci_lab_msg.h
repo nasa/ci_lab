@@ -74,7 +74,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                  TlmHeader[CFE_SB_TLM_HDR_SIZE];
+    CFE_SB_TlmHdr_t        TlmHeader;
     CI_LAB_HkTlm_Payload_t Payload;
 } OS_PACK CI_LAB_HkTlm_t;
 
