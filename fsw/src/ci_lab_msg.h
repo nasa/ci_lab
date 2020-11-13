@@ -76,7 +76,7 @@ typedef struct
 {
     uint8                  TlmHeader[CFE_SB_TLM_HDR_SIZE];
     CI_LAB_HkTlm_Payload_t Payload;
-} OS_PACK CI_LAB_HkTlm_t;
+} CI_LAB_HkTlm_t;
 
 #define CI_LAB_HK_TLM_LNGTH sizeof(CI_LAB_HkTlm_t)
 
