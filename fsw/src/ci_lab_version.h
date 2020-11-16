@@ -32,7 +32,7 @@
 
 /* Development Build Macro Definitions */
 
-#define CI_LAB_BUILD_NUMBER 2 /*!< Development Build: Number of commits since baseline */
+#define CI_LAB_BUILD_NUMBER 8 /*!< Development Build: Number of commits since baseline */
 #define CI_LAB_BUILD_BASELINE \
     "v2.4.0-rc1" /*!< Development Build: git tag that is the base for the current development */
 

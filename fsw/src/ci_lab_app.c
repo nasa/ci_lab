@@ -43,28 +43,28 @@
 /*
  * Declaring the CI_LAB_IngestBuffer as a union
  * ensures it is aligned appropriately to
- * store a CFE_SB_Msg_t type.
+ * store a CFE_MSG_Message_t type.
  */
 typedef union
 {
-    CFE_SB_Msg_t MsgHdr;
-    uint8        bytes[CI_LAB_MAX_INGEST];
-    uint16       hwords[2];
+    CFE_MSG_Message_t MsgHdr;
+    uint8             bytes[CI_LAB_MAX_INGEST];
+    uint16            hwords[2];
 } CI_LAB_IngestBuffer_t;
 
 typedef union
 {
-    CFE_SB_Msg_t   MsgHdr;
-    CI_LAB_HkTlm_t HkTlm;
+    CFE_MSG_Message_t MsgHdr;
+    CI_LAB_HkTlm_t    HkTlm;
 } CI_LAB_HkTlm_Buffer_t;
 
 typedef struct
 {
-    bool            SocketConnected;
-    CFE_SB_PipeId_t CommandPipe;
-    CFE_SB_MsgPtr_t MsgPtr;
-    osal_id_t       SocketID;
-    OS_SockAddr_t   SocketAddress;
+    bool               SocketConnected;
+    CFE_SB_PipeId_t    CommandPipe;
+    CFE_MSG_Message_t *MsgPtr;
+    osal_id_t          SocketID;
+    OS_SockAddr_t      SocketAddress;
 
     CI_LAB_HkTlm_Buffer_t HkBuffer;
     CI_LAB_IngestBuffer_t IngestBuffer;
@@ -201,7 +201,7 @@ void CI_LAB_TaskInit(void)
     */
     OS_TaskInstallDeleteHandler(&CI_LAB_delete_callback);
 
-    CFE_SB_InitMsg(&CI_LAB_Global.HkBuffer.HkTlm, CI_LAB_HK_TLM_MID, CI_LAB_HK_TLM_LNGTH, true);
+    CFE_MSG_Init(&CI_LAB_Global.HkBuffer.HkTlm.TlmHeader.BaseMsg, CI_LAB_HK_TLM_MID, CI_LAB_HK_TLM_LNGTH);
 
     CFE_EVS_SendEvent(CI_LAB_STARTUP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI Lab Initialized.%s",
                       CI_LAB_VERSION_STRING);
@@ -222,8 +222,9 @@ void CI_LAB_TaskInit(void)
 /* * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * *  * *  * * * * */
 void CI_LAB_ProcessCommandPacket(void)
 {
-    CFE_SB_MsgId_t MsgId;
-    MsgId = CFE_SB_GetMsgId(CI_LAB_Global.MsgPtr);
+    CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
+
+    CFE_MSG_GetMsgId(CI_LAB_Global.MsgPtr, &MsgId);
 
     switch (CFE_SB_MsgIdToValue(MsgId))
     {
@@ -254,9 +255,9 @@ void CI_LAB_ProcessCommandPacket(void)
 
 void CI_LAB_ProcessGroundCommand(void)
 {
-    uint16 CommandCode;
+    CFE_MSG_FcnCode_t CommandCode = 0;
 
-    CommandCode = CFE_SB_GetCmdCode(CI_LAB_Global.MsgPtr);
+    CFE_MSG_GetFcnCode(CI_LAB_Global.MsgPtr, &CommandCode);
 
     /* Process "known" CI task ground commands */
     switch (CommandCode)
@@ -393,23 +394,27 @@ void CI_LAB_ReadUpLink(void)
 /* CI_LAB_VerifyCmdLength() -- Verify command packet length                   */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-bool CI_LAB_VerifyCmdLength(CFE_SB_MsgPtr_t msg, uint16 ExpectedLength)
+bool CI_LAB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t ExpectedLength)
 {
-    bool   result       = true;
-    uint16 ActualLength = CFE_SB_GetTotalMsgLength(msg);
+    bool              result       = true;
+    CFE_MSG_Size_t    ActualLength = 0;
+    CFE_MSG_FcnCode_t FcnCode      = 0;
+    CFE_SB_MsgId_t    MsgId        = CFE_SB_INVALID_MSG_ID;
+
+    CFE_MSG_GetSize(MsgPtr, &ActualLength);
 
     /*
     ** Verify the command packet length...
     */
     if (ExpectedLength != ActualLength)
     {
-        CFE_SB_MsgId_t MessageID   = CFE_SB_GetMsgId(msg);
-        uint16         CommandCode = CFE_SB_GetCmdCode(msg);
+        CFE_MSG_GetMsgId(MsgPtr, &MsgId);
+        CFE_MSG_GetFcnCode(MsgPtr, &FcnCode);
 
         CFE_EVS_SendEvent(CI_LAB_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Invalid msg length: ID = 0x%X,  CC = %u, Len = %u, Expected = %u",
-                          (unsigned int)CFE_SB_MsgIdToValue(MessageID), (unsigned int)CommandCode,
-                          (unsigned int)ActualLength, (unsigned int)ExpectedLength);
+                          (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)FcnCode, (unsigned int)ActualLength,
+                          (unsigned int)ExpectedLength);
         result = false;
         CI_LAB_Global.HkBuffer.HkTlm.Payload.CommandErrorCounter++;
     }
