@@ -49,7 +49,6 @@ typedef union
 {
     CFE_MSG_Message_t Msg;
     uint8             bytes[CI_LAB_MAX_INGEST];
-    uint16            hwords[2];
 } CI_LAB_IngestBuffer_t;
 
 typedef struct
@@ -112,7 +111,7 @@ void CI_Lab_AppMain(void)
         CFE_ES_PerfLogExit(CI_LAB_MAIN_TASK_PERF_ID);
 
         /* Pend on receipt of command packet -- timeout set to 500 millisecs */
-        status = CFE_SB_RcvMsg(&SBBufPtr, CI_LAB_Global.CommandPipe, 500);
+        status = CFE_SB_ReceiveBuffer(&SBBufPtr, CI_LAB_Global.CommandPipe, 500);
 
         CFE_ES_PerfLogEntry(CI_LAB_MAIN_TASK_PERF_ID);
 
@@ -378,8 +377,9 @@ void CI_LAB_ReadUpLink(void)
             /* bad size, report as ingest error */
             CI_LAB_Global.HkTlm.Payload.IngestErrors++;
             CFE_EVS_SendEvent(CI_LAB_INGEST_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "CI: L%d, cmd %0x %0x dropped, bad length=%d\n", __LINE__,
-                              CI_LAB_Global.IngestBuffer.hwords[0], CI_LAB_Global.IngestBuffer.hwords[1], (int)status);
+                              "CI: L%d, cmd %0x%0x %0x%0x dropped, bad length=%d\n", __LINE__,
+                              CI_LAB_Global.IngestBuffer.bytes[0], CI_LAB_Global.IngestBuffer.bytes[1],
+                              CI_LAB_Global.IngestBuffer.bytes[2], CI_LAB_Global.IngestBuffer.bytes[3], (int)status);
         }
         else
         {
@@ -396,10 +396,10 @@ void CI_LAB_ReadUpLink(void)
 /* CI_LAB_VerifyCmdLength() -- Verify command packet length                   */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-bool CI_LAB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t ExpectedLength)
+bool CI_LAB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 {
     bool              result       = true;
-    CFE_MSG_Size_t    ActualLength = 0;
+    size_t            ActualLength = 0;
     CFE_MSG_FcnCode_t FcnCode      = 0;
     CFE_SB_MsgId_t    MsgId        = CFE_SB_INVALID_MSG_ID;
 
