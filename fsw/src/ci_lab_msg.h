@@ -41,7 +41,7 @@
 */
 typedef struct
 {
-    uint8 CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    CFE_MSG_CommandHeader_t CmdHeader;
 
 } CI_LAB_NoArgsCmd_t;
 
@@ -52,8 +52,8 @@ typedef struct
  *
  * This matches the pattern in CFE core and other modules.
  */
-typedef CI_LAB_NoArgsCmd_t CI_LAB_Noop_t;
-typedef CI_LAB_NoArgsCmd_t CI_LAB_ResetCounters_t;
+typedef CI_LAB_NoArgsCmd_t CI_LAB_NoopCmd_t;
+typedef CI_LAB_NoArgsCmd_t CI_LAB_ResetCountersCmd_t;
 
 /*************************************************************************/
 /*
@@ -74,11 +74,9 @@ typedef struct
 
 typedef struct
 {
-    CFE_SB_TlmHdr_t        TlmHeader;
-    CI_LAB_HkTlm_Payload_t Payload;
+    CFE_MSG_TelemetryHeader_t TlmHeader;
+    CI_LAB_HkTlm_Payload_t    Payload;
 } CI_LAB_HkTlm_t;
-
-#define CI_LAB_HK_TLM_LNGTH sizeof(CI_LAB_HkTlm_t)
 
 #endif /* _ci_lab_msg_h_ */
 
