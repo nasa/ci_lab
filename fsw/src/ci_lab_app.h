@@ -63,11 +63,11 @@
 */
 void CI_Lab_AppMain(void);
 void CI_LAB_TaskInit(void);
-void CI_LAB_ProcessCommandPacket(void);
-void CI_LAB_ProcessGroundCommand(void);
+void CI_LAB_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr);
+void CI_LAB_ProcessGroundCommand(CFE_SB_Buffer_t *SBBufPtr);
 void CI_LAB_ResetCounters_Internal(void);
 void CI_LAB_ReadUpLink(void);
 
-bool CI_LAB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t ExpectedLength);
+bool CI_LAB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
 
 #endif /* _ci_lab_app_h_ */
