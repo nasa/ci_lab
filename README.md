@@ -11,6 +11,11 @@ ci_lab is a simple command uplink application that accepts CCSDS telecommand pac
 
 ## Version History
 
+### Development Build: 2.4.0-rc1+dev25
+
+- Fix #74, Add Testing Tools to the Security Policy
+- See <https://github.com/nasa/ci_lab/pull/76>
+
 ### Development Build: 2.4.0-rc1+dev14
 
 - Aligns messages according to changes in cFE <https://github.com/nasa/cFE/issues/1009>. Uses the "raw" message cmd/tlm types in definition
