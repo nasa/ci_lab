@@ -32,11 +32,7 @@
 ** Required header files...
 */
 #include "common_types.h"
-#include "cfe_error.h"
-#include "cfe_evs.h"
-#include "cfe_sb.h"
-#include "cfe_es.h"
-#include "cfe_msg_api.h"
+#include "cfe.h"
 
 #include "osapi.h"
 
