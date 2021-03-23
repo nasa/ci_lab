@@ -154,8 +154,6 @@ void CI_LAB_TaskInit(void)
 
     memset(&CI_LAB_Global, 0, sizeof(CI_LAB_Global));
 
-    CFE_ES_RegisterApp();
-
     CFE_EVS_Register(CI_LAB_EventFilters, sizeof(CI_LAB_EventFilters) / sizeof(CFE_EVS_BinFilter_t),
                      CFE_EVS_EventFilter_BINARY);
 
