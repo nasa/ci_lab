@@ -37,7 +37,9 @@
 #define CI_LAB_COMMANDNOP_INF_EID   5
 #define CI_LAB_COMMANDRST_INF_EID   6
 #define CI_LAB_INGEST_INF_EID       7
-#define CI_LAB_INGEST_ERR_EID       8
+#define CI_LAB_INGEST_LEN_ERR_EID   8
+#define CI_LAB_INGEST_ALLOC_ERR_EID 9
+#define CI_LAB_INGEST_SEND_ERR_EID  10
 #define CI_LAB_LEN_ERR_EID          16
 
 #endif /* _ci_lab_events_h_ */

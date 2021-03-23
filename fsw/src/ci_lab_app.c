@@ -40,17 +40,6 @@
 ** CI global data...
 */
 
-/*
- * Declaring the CI_LAB_IngestBuffer as a union
- * ensures it is aligned appropriately to
- * store a CFE_MSG_Message_t type.
- */
-typedef union
-{
-    CFE_MSG_Message_t Msg;
-    uint8             bytes[CI_LAB_MAX_INGEST];
-} CI_LAB_IngestBuffer_t;
-
 typedef struct
 {
     bool            SocketConnected;
@@ -58,8 +47,10 @@ typedef struct
     osal_id_t       SocketID;
     OS_SockAddr_t   SocketAddress;
 
-    CI_LAB_HkTlm_t        HkTlm;
-    CI_LAB_IngestBuffer_t IngestBuffer;
+    CI_LAB_HkTlm_t HkTlm;
+
+    CFE_SB_Buffer_t *NextIngestBufPtr;
+
 } CI_LAB_GlobalData_t;
 
 CI_LAB_GlobalData_t CI_LAB_Global;
@@ -68,7 +59,8 @@ static CFE_EVS_BinFilter_t CI_LAB_EventFilters[] =
     {/* Event ID    mask */
      {CI_LAB_SOCKETCREATE_ERR_EID, 0x0000}, {CI_LAB_SOCKETBIND_ERR_EID, 0x0000}, {CI_LAB_STARTUP_INF_EID, 0x0000},
      {CI_LAB_COMMAND_ERR_EID, 0x0000},      {CI_LAB_COMMANDNOP_INF_EID, 0x0000}, {CI_LAB_COMMANDRST_INF_EID, 0x0000},
-     {CI_LAB_INGEST_INF_EID, 0x0000},       {CI_LAB_INGEST_ERR_EID, 0x0000}};
+     {CI_LAB_INGEST_INF_EID, 0x0000},       {CI_LAB_INGEST_LEN_ERR_EID, 0x0000}, {CI_LAB_INGEST_ALLOC_ERR_EID, 0x0000},
+     {CI_LAB_INGEST_SEND_ERR_EID, 0x0000}};
 
 /*
  * Individual message handler function prototypes
@@ -358,28 +350,52 @@ void CI_LAB_ResetCounters_Internal(void)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 void CI_LAB_ReadUpLink(void)
 {
-    int   i;
-    int32 status;
+    int    i;
+    int32  status;
+    uint8 *bytes;
 
     for (i = 0; i <= 10; i++)
     {
-        status = OS_SocketRecvFrom(CI_LAB_Global.SocketID, CI_LAB_Global.IngestBuffer.bytes,
-                                   sizeof(CI_LAB_Global.IngestBuffer), &CI_LAB_Global.SocketAddress, OS_CHECK);
+        if (CI_LAB_Global.NextIngestBufPtr == NULL)
+        {
+            CI_LAB_Global.NextIngestBufPtr = CFE_SB_AllocateMessageBuffer(CI_LAB_MAX_INGEST);
+            if (CI_LAB_Global.NextIngestBufPtr == NULL)
+            {
+                CFE_EVS_SendEvent(CI_LAB_INGEST_ALLOC_ERR_EID, CFE_EVS_EventType_ERROR,
+                                  "CI: L%d, buffer allocation failed\n", __LINE__);
+                break;
+            }
+        }
+
+        status = OS_SocketRecvFrom(CI_LAB_Global.SocketID, CI_LAB_Global.NextIngestBufPtr, CI_LAB_MAX_INGEST,
+                                   &CI_LAB_Global.SocketAddress, OS_CHECK);
         if (status >= (int32)sizeof(CFE_MSG_CommandHeader_t) && status <= ((int32)CI_LAB_MAX_INGEST))
         {
             CFE_ES_PerfLogEntry(CI_LAB_SOCKET_RCV_PERF_ID);
             CI_LAB_Global.HkTlm.Payload.IngestPackets++;
-            status = CFE_SB_TransmitMsg(&CI_LAB_Global.IngestBuffer.Msg, false);
+            status = CFE_SB_TransmitBuffer(CI_LAB_Global.NextIngestBufPtr, false);
             CFE_ES_PerfLogExit(CI_LAB_SOCKET_RCV_PERF_ID);
+
+            if (status == CFE_SUCCESS)
+            {
+                /* Set NULL so a new buffer will be obtained next time around */
+                CI_LAB_Global.NextIngestBufPtr = NULL;
+            }
+            else
+            {
+                CFE_EVS_SendEvent(CI_LAB_INGEST_SEND_ERR_EID, CFE_EVS_EventType_ERROR,
+                                  "CI: L%d, CFE_SB_TransmitBuffer() failed, status=%d\n", __LINE__, (int)status);
+            }
         }
         else if (status > 0)
         {
             /* bad size, report as ingest error */
             CI_LAB_Global.HkTlm.Payload.IngestErrors++;
-            CFE_EVS_SendEvent(CI_LAB_INGEST_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "CI: L%d, cmd %0x%0x %0x%0x dropped, bad length=%d\n", __LINE__,
-                              CI_LAB_Global.IngestBuffer.bytes[0], CI_LAB_Global.IngestBuffer.bytes[1],
-                              CI_LAB_Global.IngestBuffer.bytes[2], CI_LAB_Global.IngestBuffer.bytes[3], (int)status);
+
+            bytes = CI_LAB_Global.NextIngestBufPtr->Msg.Byte;
+            CFE_EVS_SendEvent(CI_LAB_INGEST_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "CI: L%d, cmd %0x%0x %0x%0x dropped, bad length=%d\n", __LINE__, bytes[0], bytes[1],
+                              bytes[2], bytes[3], (int)status);
         }
         else
         {
