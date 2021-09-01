@@ -80,7 +80,7 @@ int32 CI_LAB_ReportHousekeeping(const CFE_MSG_CommandHeader_t *data);
 /* Purpose: This is the Main task event loop for the Command Ingest Task      */
 /*            The task handles all interfaces to the data system through      */
 /*            the software bus. There is one pipeline into this task          */
-/*            The task is sceduled by input into this pipeline.               */
+/*            The task is scheduled by input into this pipeline.               */
 /*            It can receive Commands over this pipeline                      */
 /*            and acts accordingly to process them.                           */
 /*                                                                            */
