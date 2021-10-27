@@ -80,7 +80,7 @@ int32 CI_LAB_ReportHousekeeping(const CFE_MSG_CommandHeader_t *data);
 /* Purpose: This is the Main task event loop for the Command Ingest Task      */
 /*            The task handles all interfaces to the data system through      */
 /*            the software bus. There is one pipeline into this task          */
-/*            The task is sceduled by input into this pipeline.               */
+/*            The task is scheduled by input into this pipeline.               */
 /*            It can receive Commands over this pipeline                      */
 /*            and acts accordingly to process them.                           */
 /*                                                                            */
@@ -150,8 +150,8 @@ void CI_LAB_TaskInit(void)
                      CFE_EVS_EventFilter_BINARY);
 
     CFE_SB_CreatePipe(&CI_LAB_Global.CommandPipe, CI_LAB_PIPE_DEPTH, "CI_LAB_CMD_PIPE");
-    CFE_SB_Subscribe(CI_LAB_CMD_MID, CI_LAB_Global.CommandPipe);
-    CFE_SB_Subscribe(CI_LAB_SEND_HK_MID, CI_LAB_Global.CommandPipe);
+    CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CI_LAB_CMD_MID), CI_LAB_Global.CommandPipe);
+    CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CI_LAB_SEND_HK_MID), CI_LAB_Global.CommandPipe);
 
     status = OS_SocketOpen(&CI_LAB_Global.SocketID, OS_SocketDomain_INET, OS_SocketType_DATAGRAM);
     if (status != OS_SUCCESS)
@@ -186,7 +186,8 @@ void CI_LAB_TaskInit(void)
     */
     OS_TaskInstallDeleteHandler(&CI_LAB_delete_callback);
 
-    CFE_MSG_Init(&CI_LAB_Global.HkTlm.TlmHeader.Msg, CI_LAB_HK_TLM_MID, sizeof(CI_LAB_Global.HkTlm));
+    CFE_MSG_Init(&CI_LAB_Global.HkTlm.TlmHeader.Msg, CFE_SB_ValueToMsgId(CI_LAB_HK_TLM_MID),
+                 sizeof(CI_LAB_Global.HkTlm));
 
     CFE_EVS_SendEvent(CI_LAB_STARTUP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI Lab Initialized.%s",
                       CI_LAB_VERSION_STRING);

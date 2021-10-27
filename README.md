@@ -11,6 +11,16 @@ ci_lab is a simple command uplink application that accepts CCSDS telecommand pac
 
 ## Version History
 
+### Development Build: v2.4.0-rc1+dev46
+
+- Apply CFE_SB_ValueToMsgId where required
+- See <https://github.com/nasa/ci_lab/pull/93> and <https://github.com/nasa/cFS/pull/359>
+
+### Development Build: v2.4.0-rc1+dev42
+
+- Implement Coding Standard in CodeQL workflow
+- See <https://github.com/nasa/ci_lab/pull/88> and <https://github.com/nasa/cFS/pull/270>
+
 ### Development Build: v2.4.0-rc1+dev39
 
 - Removes unnecessary call to `CFE_ES_RegisterApp()` since app registration is done automatically.
@@ -24,7 +34,7 @@ ci_lab is a simple command uplink application that accepts CCSDS telecommand pac
 
 ### Development Build: v2.4.0-rc1+dev25
 
-- Fix #74, Add Testing Tools to the Security Policy
+- Add Testing Tools to the Security Policy
 - See <https://github.com/nasa/ci_lab/pull/76>
 
 ### Development Build: v2.4.0-rc1+dev14
