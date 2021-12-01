@@ -32,16 +32,23 @@
 
 /* Development Build Macro Definitions */
 
-#define CI_LAB_BUILD_NUMBER 46 /*!< Development Build: Number of commits since baseline */
+#define CI_LAB_BUILD_NUMBER 4 /*!< Development Build: Number of commits since baseline */
 #define CI_LAB_BUILD_BASELINE \
-    "v2.4.0-rc1" /*!< Development Build: git tag that is the base for the current development */
+    "v2.5.0-rc4" /*!< Development Build: git tag that is the base for the current development */
 
 /* Version Macro Definitions */
 
-#define CI_LAB_MAJOR_VERSION 2  /*!< @brief ONLY APPLY for OFFICIAL releases. Major version number. */
-#define CI_LAB_MINOR_VERSION 3  /*!< @brief ONLY APPLY for OFFICIAL releases. Minor version number. */
-#define CI_LAB_REVISION      99 /*!< @brief ONLY APPLY for OFFICIAL releases. Revision version number. */
-#define CI_LAB_MISSION_REV   0  /*!< @brief ONLY USED by MISSION Implementations. Mission revision */
+#define CI_LAB_MAJOR_VERSION 2 /*!< @brief ONLY APPLY for OFFICIAL releases. Major version number. */
+#define CI_LAB_MINOR_VERSION 3 /*!< @brief ONLY APPLY for OFFICIAL releases. Minor version number. */
+#define CI_LAB_REVISION      0 /*!< @brief ONLY APPLY for OFFICIAL releases. Revision version number. */
+
+/*!
+ * @brief Mission revision.
+ *
+ * Set to 0 on OFFICIAL releases, and set to 255 (0xFF) on development versions.
+ * Values 1-254 are reserved for mission use to denote patches/customizations as needed.
+ */
+#define CI_LAB_MISSION_REV 0xFF
 
 #define CI_LAB_STR_HELPER(x) #x /*!< @brief Helper function to concatenate strings from integer macros */
 #define CI_LAB_STR(x)        CI_LAB_STR_HELPER(x) /*!< @brief Helper function to concatenate strings from integer macros */

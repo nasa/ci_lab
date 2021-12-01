@@ -11,6 +11,12 @@ ci_lab is a simple command uplink application that accepts CCSDS telecommand pac
 
 ## Version History
 
+### Development Build: v2.5.0-rc4+dev4
+
+- Use CFE_MSG_PTR conversion macro
+- Update baseline for cFS-Caelum-rc4 to v2.5.0-rc4
+- See <https://github.com/nasa/ci_lab/pull/101> and <https://github.com/nasa/cFS/pull/390>
+
 ### Development Build: v2.4.0-rc1+dev46
 
 - Apply CFE_SB_ValueToMsgId where required
