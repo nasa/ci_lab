@@ -186,7 +186,7 @@ void CI_LAB_TaskInit(void)
     */
     OS_TaskInstallDeleteHandler(&CI_LAB_delete_callback);
 
-    CFE_MSG_Init(&CI_LAB_Global.HkTlm.TlmHeader.Msg, CFE_SB_ValueToMsgId(CI_LAB_HK_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CI_LAB_Global.HkTlm.TelemetryHeader), CFE_SB_ValueToMsgId(CI_LAB_HK_TLM_MID),
                  sizeof(CI_LAB_Global.HkTlm));
 
     CFE_EVS_SendEvent(CI_LAB_STARTUP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI Lab Initialized.%s",
@@ -314,8 +314,8 @@ int32 CI_LAB_ResetCounters(const CI_LAB_ResetCountersCmd_t *data)
 int32 CI_LAB_ReportHousekeeping(const CFE_MSG_CommandHeader_t *data)
 {
     CI_LAB_Global.HkTlm.Payload.SocketConnected = CI_LAB_Global.SocketConnected;
-    CFE_SB_TimeStampMsg(&CI_LAB_Global.HkTlm.TlmHeader.Msg);
-    CFE_SB_TransmitMsg(&CI_LAB_Global.HkTlm.TlmHeader.Msg, true);
+    CFE_SB_TimeStampMsg(CFE_MSG_PTR(CI_LAB_Global.HkTlm.TelemetryHeader));
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(CI_LAB_Global.HkTlm.TelemetryHeader), true);
     return CFE_SUCCESS;
 
 } /* End of CI_LAB_ReportHousekeeping() */

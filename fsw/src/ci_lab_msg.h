@@ -74,7 +74,7 @@ typedef struct
 
 typedef struct
 {
-    CFE_MSG_TelemetryHeader_t TlmHeader;
+    CFE_MSG_TelemetryHeader_t TelemetryHeader;
     CI_LAB_HkTlm_Payload_t    Payload;
 } CI_LAB_HkTlm_t;
 
