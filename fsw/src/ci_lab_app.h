@@ -17,16 +17,14 @@
 **      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
-**
-** File: ci_lab_app.h
-**
-** Purpose:
-**   This file is main hdr file for the Command Ingest lab application.
-**
-*******************************************************************************/
+*/
 
-#ifndef _ci_lab_app_h_
-#define _ci_lab_app_h_
+/**
+ * @file
+ *   This file is main hdr file for the Command Ingest lab application.
+ */
+#ifndef CI_LAB_APP_H
+#define CI_LAB_APP_H
 
 /*
 ** Required header files...
@@ -66,4 +64,4 @@ void CI_LAB_ReadUpLink(void);
 
 bool CI_LAB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
 
-#endif /* _ci_lab_app_h_ */
+#endif

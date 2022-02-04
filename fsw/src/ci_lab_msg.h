@@ -17,17 +17,14 @@
 **      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
-**
-** File: ci_lab_msg.h
-**
-** Purpose:
-**  Define CI Lab Messages and info
-**
-** Notes:
-**
-*******************************************************************************/
-#ifndef _ci_lab_msg_h_
-#define _ci_lab_msg_h_
+*/
+
+/**
+ * @file
+ *  Define CI Lab Messages and info
+ */
+#ifndef CI_LAB_MSG_H
+#define CI_LAB_MSG_H
 
 /*
 ** CI_LAB command codes
@@ -78,8 +75,4 @@ typedef struct
     CI_LAB_HkTlm_Payload_t    Payload;
 } CI_LAB_HkTlm_t;
 
-#endif /* _ci_lab_msg_h_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif
