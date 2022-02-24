@@ -17,17 +17,14 @@
 **      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
-**
-** File: ci_lab_events.h
-**
-** Purpose:
-**  Define CI Lab Events IDs
-**
-** Notes:
-**
-*************************************************************************/
-#ifndef _ci_lab_events_h_
-#define _ci_lab_events_h_
+*/
+
+/**
+ * @file
+ *  Define CI Lab Events IDs
+ */
+#ifndef CI_LAB_EVENTS_H
+#define CI_LAB_EVENTS_H
 
 #define CI_LAB_RESERVED_EID         0
 #define CI_LAB_SOCKETCREATE_ERR_EID 1
@@ -42,8 +39,4 @@
 #define CI_LAB_INGEST_SEND_ERR_EID  10
 #define CI_LAB_LEN_ERR_EID          16
 
-#endif /* _ci_lab_events_h_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif

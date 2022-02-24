@@ -20,13 +20,10 @@
 **
 *************************************************************************/
 
-/*! @file ci_lab_version.h
- * @brief Purpose:
- *
+/**
+ * @file
  *  The CI Lab App header file containing version information
- *
  */
-
 #ifndef CI_LAB_VERSION_H
 #define CI_LAB_VERSION_H
 
@@ -67,8 +64,4 @@
     " CI Lab App DEVELOPMENT BUILD " CI_LAB_VERSION \
     ", Last Official Release: v2.3.0" /* For full support please use this version */
 
-#endif /* CI_LAB_VERSION_H */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif

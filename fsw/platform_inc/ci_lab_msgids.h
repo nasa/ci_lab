@@ -17,25 +17,18 @@
 **      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
-**
-** File: ci_lab_msgids.h
-**
-** Purpose:
-**  Define CI Lab Message IDs
-**
-** Notes:
-**
-*************************************************************************/
-#ifndef _ci_lab_msgids_h_
-#define _ci_lab_msgids_h_
+*/
+
+/**
+ * @file
+ *   Define CI Lab Message IDs
+ */
+#ifndef CI_LAB_MSGIDS_H
+#define CI_LAB_MSGIDS_H
 
 #define CI_LAB_CMD_MID     0x1884
 #define CI_LAB_SEND_HK_MID 0x1885
 
 #define CI_LAB_HK_TLM_MID 0x0884
 
-#endif /* _ci_lab_msgids_h_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif

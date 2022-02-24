@@ -17,23 +17,16 @@
 **      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
-**
-** File: ci_lab_perfids.h
-**
-** Purpose:
-**  Define CI Lab Performance IDs
-**
-** Notes:
-**
-*************************************************************************/
-#ifndef _ci_lab_perfids_h_
-#define _ci_lab_perfids_h_
+*/
+
+/**
+ * @file
+ *   Define CI Lab Performance IDs
+ */
+#ifndef CI_LAB_PERFIDS_H
+#define CI_LAB_PERFIDS_H
 
 #define CI_LAB_MAIN_TASK_PERF_ID  32
 #define CI_LAB_SOCKET_RCV_PERF_ID 33
 
-#endif /* _ci_lab_perfids_h_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif
