@@ -11,6 +11,12 @@ ci_lab is a simple command uplink application that accepts CCSDS telecommand pac
 
 ## Version History
 
+### Development Build: v2.5.0-rc4+dev17
+
+- Update Copyright Headers
+- Standardize version.h 
+- See <https://github.com/nasa/ci_lab/pull/107> and <https://github.com/nasa/cFS/445>
+
 ### Development Build: v2.5.0-rc4+dev10
 
 - Apply header guard standard

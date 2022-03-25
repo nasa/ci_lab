@@ -1,24 +1,20 @@
 /************************************************************************
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.7"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
-*************************************************************************/
+ * NASA Docket No. GSC-18,719-1, and identified as “core Flight System: Bootes”
+ *
+ * Copyright (c) 2020 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
 
 /**
  * @file
@@ -29,21 +25,23 @@
 
 /* Development Build Macro Definitions */
 
-#define CI_LAB_BUILD_NUMBER 10 /*!< Development Build: Number of commits since baseline */
+#define CI_LAB_BUILD_NUMBER 17 /*!< Development Build: Number of commits since baseline */
 #define CI_LAB_BUILD_BASELINE \
     "v2.5.0-rc4" /*!< Development Build: git tag that is the base for the current development */
 
-/* Version Macro Definitions */
-
-#define CI_LAB_MAJOR_VERSION 2 /*!< @brief ONLY APPLY for OFFICIAL releases. Major version number. */
-#define CI_LAB_MINOR_VERSION 3 /*!< @brief ONLY APPLY for OFFICIAL releases. Minor version number. */
-#define CI_LAB_REVISION      0 /*!< @brief ONLY APPLY for OFFICIAL releases. Revision version number. */
+/*
+ * Version Macros, see \ref cfsversions for definitions.
+ */
+#define CI_LAB_MAJOR_VERSION 2  /*!< @brief Major version number */
+#define CI_LAB_MINOR_VERSION 3  /*!< @brief Minor version number */
+#define CI_LAB_REVISION      99 /*!< @brief Revision version number. Value of 99 indicates a development version.*/
 
 /*!
  * @brief Mission revision.
  *
- * Set to 0 on OFFICIAL releases, and set to 255 (0xFF) on development versions.
- * Values 1-254 are reserved for mission use to denote patches/customizations as needed.
+ * Reserved for mission use to denote patches/customizations as needed.
+ * Values 1-254 are reserved for mission use to denote patches/customizations as needed. NOTE: Reserving 0 and 0xFF for
+ * cFS open-source development use (pending resolution of nasa/cFS#440)
  */
 #define CI_LAB_MISSION_REV 0xFF
 
