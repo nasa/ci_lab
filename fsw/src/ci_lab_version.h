@@ -29,17 +29,19 @@
 #define CI_LAB_BUILD_BASELINE \
     "v2.5.0-rc4" /*!< Development Build: git tag that is the base for the current development */
 
-/* Version Macro Definitions */
-
-#define CI_LAB_MAJOR_VERSION 2 /*!< @brief ONLY APPLY for OFFICIAL releases. Major version number. */
-#define CI_LAB_MINOR_VERSION 3 /*!< @brief ONLY APPLY for OFFICIAL releases. Minor version number. */
-#define CI_LAB_REVISION      0 /*!< @brief ONLY APPLY for OFFICIAL releases. Revision version number. */
+/*
+ * Version Macros, see \ref cfsversions for definitions.
+ */
+#define CI_LAB_MAJOR_VERSION 2  /*!< @brief Major version number */
+#define CI_LAB_MINOR_VERSION 3  /*!< @brief Minor version number */
+#define CI_LAB_REVISION      99 /*!< @brief Revision version number. Value of 99 indicates a development version.*/
 
 /*!
  * @brief Mission revision.
  *
- * Set to 0 on OFFICIAL releases, and set to 255 (0xFF) on development versions.
- * Values 1-254 are reserved for mission use to denote patches/customizations as needed.
+ * Reserved for mission use to denote patches/customizations as needed.
+ * Values 1-254 are reserved for mission use to denote patches/customizations as needed. NOTE: Reserving 0 and 0xFF for
+ * cFS open-source development use (pending resolution of nasa/cFS#440)
  */
 #define CI_LAB_MISSION_REV 0xFF
 
