@@ -7,7 +7,7 @@ on:
 jobs:
   codeql:
     name: CodeQL Analysis
-    uses: nasa/cFS/.github/workflows/codeql-build.yml@main
+    uses: nasa/cFS/.github/workflows/codeql-reusable.yml@main
     with: 
-      make-prep: 'make prep'
-      make: 'make ci_lab'
+      component-path: apps/ci_lab
+      make: 'make -C build/native/default_cpu1/apps/ci_lab'
