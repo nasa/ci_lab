@@ -51,13 +51,6 @@ typedef struct
 
 CI_LAB_GlobalData_t CI_LAB_Global;
 
-static CFE_EVS_BinFilter_t CI_LAB_EventFilters[] =
-    {/* Event ID    mask */
-     {CI_LAB_SOCKETCREATE_ERR_EID, 0x0000}, {CI_LAB_SOCKETBIND_ERR_EID, 0x0000}, {CI_LAB_STARTUP_INF_EID, 0x0000},
-     {CI_LAB_COMMAND_ERR_EID, 0x0000},      {CI_LAB_COMMANDNOP_INF_EID, 0x0000}, {CI_LAB_COMMANDRST_INF_EID, 0x0000},
-     {CI_LAB_INGEST_INF_EID, 0x0000},       {CI_LAB_INGEST_LEN_ERR_EID, 0x0000}, {CI_LAB_INGEST_ALLOC_ERR_EID, 0x0000},
-     {CI_LAB_INGEST_SEND_ERR_EID, 0x0000}};
-
 /*
  * Individual message handler function prototypes
  *
@@ -142,8 +135,7 @@ void CI_LAB_TaskInit(void)
 
     memset(&CI_LAB_Global, 0, sizeof(CI_LAB_Global));
 
-    CFE_EVS_Register(CI_LAB_EventFilters, sizeof(CI_LAB_EventFilters) / sizeof(CFE_EVS_BinFilter_t),
-                     CFE_EVS_EventFilter_BINARY);
+    CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY);
 
     CFE_SB_CreatePipe(&CI_LAB_Global.CommandPipe, CI_LAB_PIPE_DEPTH, "CI_LAB_CMD_PIPE");
     CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CI_LAB_CMD_MID), CI_LAB_Global.CommandPipe);
