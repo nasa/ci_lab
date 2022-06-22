@@ -9,7 +9,14 @@ This lab application is a non-flight utility to send commands to the cFS Bundle.
 
 ci_lab is a simple command uplink application that accepts CCSDS telecommand packets over a UDP/IP port. It does not provide a full CCSDS Telecommand stack implementation.
 
-## Version History
+## Changelog
+
+
+### Development Build: v2.5.0-rc4+dev22
+
+- Remove registration of empty EVS filters
+- Update codeql workflow for reusable updates
+- See <https://github.com/nasa/cFS/pull/505> 
 
 ### Development Build: v2.5.0-rc4+dev17
 
