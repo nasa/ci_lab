@@ -12,6 +12,10 @@ ci_lab is a simple command uplink application that accepts CCSDS telecommand pac
 ## Changelog
 
 
+### Development Build: v2.5.0-rc4+dev24
+- Update cmake mimimum required to something more recent
+- See <https://github.com/nasa/ci_lab/pull/113>
+
 ### Development Build: v2.5.0-rc4+dev22
 
 - Remove registration of empty EVS filters
