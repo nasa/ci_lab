@@ -424,6 +424,6 @@ bool CI_LAB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
         CI_LAB_Global.HkTlm.Payload.CommandErrorCounter++;
     }
 
-    return (result);
+    return result;
 
 } /* End of CI_LAB_VerifyCmdLength() */
