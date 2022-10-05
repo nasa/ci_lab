@@ -65,11 +65,12 @@ int32 CI_LAB_ResetCounters(const CI_LAB_ResetCountersCmd_t *data);
 int32 CI_LAB_ReportHousekeeping(const CFE_MSG_CommandHeader_t *data);
 
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/* CI_Lab_AppMain() -- Application entry point and main process loop          */
+/*                                                                            */
+/* Application entry point and main process loop                              */
 /* Purpose: This is the Main task event loop for the Command Ingest Task      */
 /*            The task handles all interfaces to the data system through      */
 /*            the software bus. There is one pipeline into this task          */
-/*            The task is scheduled by input into this pipeline.               */
+/*            The task is scheduled by input into this pipeline.              */
 /*            It can receive Commands over this pipeline                      */
 /*            and acts accordingly to process them.                           */
 /*                                                                            */
@@ -109,8 +110,7 @@ void CI_Lab_AppMain(void)
     }
 
     CFE_ES_ExitApp(RunStatus);
-
-} /* End of CI_Lab_AppMain() */
+}
 
 /*
 ** CI delete callback function.
@@ -125,7 +125,7 @@ void CI_LAB_delete_callback(void)
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
 /*                                                                            */
-/* CI_LAB_TaskInit() -- CI initialization                                     */
+/* CI initialization                                                          */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 void CI_LAB_TaskInit(void)
@@ -179,11 +179,9 @@ void CI_LAB_TaskInit(void)
 
     CFE_EVS_SendEvent(CI_LAB_STARTUP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI Lab Initialized.%s",
                       CI_LAB_VERSION_STRING);
-
-} /* End of CI_LAB_TaskInit() */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*  Name:  CI_LAB_ProcessCommandPacket                                        */
 /*                                                                            */
 /*  Purpose:                                                                  */
 /*     This routine will process any packet that is received on the CI command*/
@@ -218,12 +216,11 @@ void CI_LAB_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr)
     }
 
     return;
-
-} /* End CI_LAB_ProcessCommandPacket */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 /*                                                                            */
-/* CI_LAB_ProcessGroundCommand() -- CI ground commands                        */
+/* CI ground commands                                                         */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
@@ -256,11 +253,9 @@ void CI_LAB_ProcessGroundCommand(CFE_SB_Buffer_t *SBBufPtr)
     }
 
     return;
-
-} /* End of CI_LAB_ProcessGroundCommand() */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*  Name:  CI_LAB_Noop                                                         */
 /*                                                                             */
 /*  Purpose:                                                                   */
 /*     Handle NOOP command packets                                             */
@@ -277,7 +272,6 @@ int32 CI_LAB_Noop(const CI_LAB_NoopCmd_t *data)
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*  Name:  CI_LAB_ResetCounters                                                */
 /*                                                                             */
 /*  Purpose:                                                                   */
 /*     Handle ResetCounters command packets                                    */
@@ -291,13 +285,13 @@ int32 CI_LAB_ResetCounters(const CI_LAB_ResetCountersCmd_t *data)
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*  Name:  CI_LAB_ReportHousekeeping                                          */
 /*                                                                            */
 /*  Purpose:                                                                  */
 /*         This function is triggered in response to a task telemetry request */
 /*         from the housekeeping task. This function will gather the CI task  */
 /*         telemetry, packetize it and send it to the housekeeping task via   */
 /*         the software bus                                                   */
+/*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * *  * *  * * * * */
 int32 CI_LAB_ReportHousekeeping(const CFE_MSG_CommandHeader_t *data)
 {
@@ -305,11 +299,9 @@ int32 CI_LAB_ReportHousekeeping(const CFE_MSG_CommandHeader_t *data)
     CFE_SB_TimeStampMsg(CFE_MSG_PTR(CI_LAB_Global.HkTlm.TelemetryHeader));
     CFE_SB_TransmitMsg(CFE_MSG_PTR(CI_LAB_Global.HkTlm.TelemetryHeader), true);
     return CFE_SUCCESS;
-
-} /* End of CI_LAB_ReportHousekeeping() */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-/*  Name:  CI_LAB_ResetCounters_Internal                                      */
 /*                                                                            */
 /*  Purpose:                                                                  */
 /*         This function resets all the global counter variables that are     */
@@ -327,12 +319,11 @@ void CI_LAB_ResetCounters_Internal(void)
     CI_LAB_Global.HkTlm.Payload.IngestErrors  = 0;
 
     return;
-
-} /* End of CI_LAB_ResetCounters() */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 /*                                                                            */
-/* CI_LAB_ReadUpLink() --                                                     */
+/* --                                                                         */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 void CI_LAB_ReadUpLink(void)
@@ -391,12 +382,11 @@ void CI_LAB_ReadUpLink(void)
     }
 
     return;
-
-} /* End of CI_LAB_ReadUpLink() */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 /*                                                                            */
-/* CI_LAB_VerifyCmdLength() -- Verify command packet length                   */
+/* Verify command packet length                                               */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 bool CI_LAB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
@@ -425,5 +415,4 @@ bool CI_LAB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
     }
 
     return (result);
-
-} /* End of CI_LAB_VerifyCmdLength() */
+}
