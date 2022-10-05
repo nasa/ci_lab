@@ -214,8 +214,6 @@ void CI_LAB_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr)
                               (unsigned int)CFE_SB_MsgIdToValue(MsgId));
             break;
     }
-
-    return;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
@@ -251,8 +249,6 @@ void CI_LAB_ProcessGroundCommand(CFE_SB_Buffer_t *SBBufPtr)
         default:
             break;
     }
-
-    return;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -317,8 +313,6 @@ void CI_LAB_ResetCounters_Internal(void)
     /* Status of packets ingested by CI task */
     CI_LAB_Global.HkTlm.Payload.IngestPackets = 0;
     CI_LAB_Global.HkTlm.Payload.IngestErrors  = 0;
-
-    return;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
@@ -380,8 +374,6 @@ void CI_LAB_ReadUpLink(void)
             break; /* no (more) messages */
         }
     }
-
-    return;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
@@ -414,5 +406,5 @@ bool CI_LAB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
         CI_LAB_Global.HkTlm.Payload.CommandErrorCounter++;
     }
 
-    return (result);
+    return result;
 }
