@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: v2.5.0-rc4+dev39
+- Remove redundant comments
+- Create CHANGELOG.md
+- See <https://github.com/nasa/ci_lab/pull/123> and <https://github.com/nasa/ci_lab/pull/120>
+
 ## Development Build: v2.5.0-rc4+dev30
 - Remove unnecessary parentheses around return values.
 - Remove 'return;' from last line of void functions.
