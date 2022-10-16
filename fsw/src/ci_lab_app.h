@@ -66,7 +66,7 @@ typedef struct
 ** Note: Except for the entry point (CI_LAB_AppMain), these
 **       functions are not called from any other source module.
 */
-void CI_Lab_AppMain(void);
+void CI_LAB_AppMain(void);
 void CI_LAB_TaskInit(void);
 void CI_LAB_ResetCounters_Internal(void);
 void CI_LAB_ReadUpLink(void);
