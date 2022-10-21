@@ -39,7 +39,7 @@ CFE_Status_t CI_LAB_NoopCmd(const CI_LAB_NoopCmd_t *cmd)
     /* Does everything the name implies */
     CI_LAB_Global.HkTlm.Payload.CommandCounter++;
 
-    CFE_EVS_SendEvent(CI_LAB_COMMANDNOP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: NOOP command");
+    CFE_EVS_SendEvent(CI_LAB_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: NOOP command");
 
     return CFE_SUCCESS;
 }
@@ -52,7 +52,7 @@ CFE_Status_t CI_LAB_NoopCmd(const CI_LAB_NoopCmd_t *cmd)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 CFE_Status_t CI_LAB_ResetCountersCmd(const CI_LAB_ResetCountersCmd_t *cmd)
 {
-    CFE_EVS_SendEvent(CI_LAB_COMMANDRST_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: RESET command");
+    CFE_EVS_SendEvent(CI_LAB_RESET_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: RESET command");
     CI_LAB_ResetCounters_Internal();
     return CFE_SUCCESS;
 }
