@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: v2.5.0-rc4+dev43
+- update cmake recipe
+- See <https://github.com/nasa/ci_lab/pull/136>
+
 ## Development Build: v2.5.0-rc4+dev39
 - Remove redundant comments
 - Create CHANGELOG.md
