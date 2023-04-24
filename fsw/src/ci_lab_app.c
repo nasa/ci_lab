@@ -48,7 +48,7 @@ CI_LAB_GlobalData_t CI_LAB_Global;
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * *  * * * * **/
 void CI_Lab_AppMain(void)
 {
-    int32            status;
+    CFE_Status_t     status;
     uint32           RunStatus = CFE_ES_RunStatus_APP_RUN;
     CFE_SB_Buffer_t *SBBufPtr;
 
@@ -177,9 +177,9 @@ void CI_LAB_ResetCounters_Internal(void)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 void CI_LAB_ReadUpLink(void)
 {
-    int    i;
-    int32  status;
-    uint8 *bytes;
+    int          i;
+    CFE_Status_t status;
+    uint8 *      bytes;
 
     for (i = 0; i <= 10; i++)
     {
