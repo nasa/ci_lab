@@ -36,11 +36,15 @@
 #include "ci_lab_dispatch.h"
 #include "ci_lab_cmds.h"
 
+#include "ci_lab_msg.h"
+
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
 
-/****************************************************************************/
+/************************************************************************
+ * Macro Definitions
+ ************************************************************************/
 
 /************************************************************************
 ** Type Definitions
@@ -73,5 +77,18 @@ void CI_LAB_ReadUpLink(void);
 
 /* Global State Object */
 extern CI_LAB_GlobalData_t CI_LAB_Global;
+
+/*
+ * Individual message handler function prototypes
+ *
+ * Per the recommended code pattern, these should accept a const pointer
+ * to a structure type which matches the message, and return an int32
+ * where CFE_SUCCESS (0) indicates successful handling of the message.
+ */
+int32 CI_LAB_Noop(const CI_LAB_NoopCmd_t *data);
+int32 CI_LAB_ResetCounters(const CI_LAB_ResetCountersCmd_t *data);
+
+/* Housekeeping message handler */
+int32 CI_LAB_ReportHousekeeping(const CFE_MSG_CommandHeader_t *data);
 
 #endif
