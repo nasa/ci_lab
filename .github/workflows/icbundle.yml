@@ -60,7 +60,7 @@ jobs:
           changelog_entry="${changelog_entry}\n${see_entry}\n"
           sed -ir "s|# Changelog|$changelog_entry|" CHANGELOG.md
           
-          buildnumber_entry=$'#define OS_BUILD_NUMBER   '${rev_num}'/*!< Development Build: Number of commits since baseline */'
+          buildnumber_entry=$'#define CI_LAB_BUILD_NUMBER   '${rev_num}'/*!< Development Build: Number of commits since baseline */'
           sed -ir "s|#define CI_LAB_BUILD_NUMBER.*|$buildnumber_entry|" fsw/src/ci_lab_version.h
       - name: Commit and Push Updates to IC Branch
         env:
