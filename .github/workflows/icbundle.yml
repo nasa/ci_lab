@@ -61,7 +61,7 @@ jobs:
           sed -ir "s|# Changelog|$changelog_entry|" CHANGELOG.md
           
           buildnumber_entry=$'#define OS_BUILD_NUMBER   '${rev_num}
-          sed -ir "s|#define OS_BUILD_NUMBER.*|$buildnumber_entry|" fsw/src/ci_lab_version.h
+          sed -ir "s|#define CI_LAB_BUILD_NUMBER.*|$buildnumber_entry|" fsw/src/ci_lab_version.h
       - name: Commit and Push Updates to IC Branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
