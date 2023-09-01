@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: v2.5.0-rc4+dev47
+- Create Workflow for IC Bundle Generation
+- See <https://github.com/nasa/ci_lab/pull/143>
+
 ## Development Build: v2.5.0-rc4+dev43
 - update cmake recipe
 - See <https://github.com/nasa/ci_lab/pull/136>
