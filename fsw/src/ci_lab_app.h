@@ -27,9 +27,14 @@
 ** Required header files...
 */
 #include "common_types.h"
+#include "osapi.h"
 #include "cfe.h"
 
-#include "osapi.h"
+#include "ci_lab_mission_cfg.h"
+#include "ci_lab_platform_cfg.h"
+#include "ci_lab_eventids.h"
+#include "ci_lab_dispatch.h"
+#include "ci_lab_cmds.h"
 
 #include <string.h>
 #include <errno.h>
@@ -37,13 +42,22 @@
 
 /****************************************************************************/
 
-#define CI_LAB_BASE_UDP_PORT 1234
-#define CI_LAB_MAX_INGEST    768
-#define CI_LAB_PIPE_DEPTH    32
-
 /************************************************************************
 ** Type Definitions
 *************************************************************************/
+
+typedef struct
+{
+    bool            SocketConnected;
+    CFE_SB_PipeId_t CommandPipe;
+    osal_id_t       SocketID;
+    OS_SockAddr_t   SocketAddress;
+
+    CI_LAB_HkTlm_t HkTlm;
+
+    CFE_SB_Buffer_t *NextIngestBufPtr;
+
+} CI_LAB_GlobalData_t;
 
 /****************************************************************************/
 /*
@@ -54,11 +68,10 @@
 */
 void CI_Lab_AppMain(void);
 void CI_LAB_TaskInit(void);
-void CI_LAB_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr);
-void CI_LAB_ProcessGroundCommand(CFE_SB_Buffer_t *SBBufPtr);
 void CI_LAB_ResetCounters_Internal(void);
 void CI_LAB_ReadUpLink(void);
 
-bool CI_LAB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
+/* Global State Object */
+extern CI_LAB_GlobalData_t CI_LAB_Global;
 
 #endif
