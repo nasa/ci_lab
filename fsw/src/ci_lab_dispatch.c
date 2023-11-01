@@ -68,12 +68,12 @@ bool CI_LAB_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLeng
 
 void CI_LAB_ProcessGroundCommand(const CFE_SB_Buffer_t *SBBufPtr)
 {
-    CFE_MSG_FcnCode_t CommandCode = 0;
+    CFE_MSG_FcnCode_t FcnCode = 0;
 
-    CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &CommandCode);
+    CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &FcnCode);
 
     /* Process "known" CI task ground commands */
-    switch (CommandCode)
+    switch (FcnCode)
     {
         case CI_LAB_NOOP_CC:
             if (CI_LAB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CI_LAB_NoopCmd_t)))
