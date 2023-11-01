@@ -27,6 +27,7 @@
 
 #include "ci_lab_app.h"
 #include "ci_lab_cmds.h"
+#include "ci_lab_version.h"
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                             */
@@ -39,7 +40,8 @@ CFE_Status_t CI_LAB_NoopCmd(const CI_LAB_NoopCmd_t *cmd)
     /* Does everything the name implies */
     CI_LAB_Global.HkTlm.Payload.CommandCounter++;
 
-    CFE_EVS_SendEvent(CI_LAB_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: NOOP command");
+    CFE_EVS_SendEvent(CI_LAB_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "CI: NOOP command. Version %d.%d.%d.%d",
+                      CI_LAB_MAJOR_VERSION, CI_LAB_MINOR_VERSION, CI_LAB_REVISION, CI_LAB_MISSION_REV);
 
     return CFE_SUCCESS;
 }
