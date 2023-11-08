@@ -31,7 +31,7 @@
 #include "ci_lab_version.h"
 
 /*
-** CI global data...
+** CI Global Data
 */
 CI_LAB_GlobalData_t CI_LAB_Global;
 

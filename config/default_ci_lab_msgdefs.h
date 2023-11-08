@@ -42,7 +42,6 @@ typedef struct
     uint32 IngestPackets;
     uint32 IngestErrors;
     uint32 Spare2;
-
 } CI_LAB_HkTlm_Payload_t;
 
 #endif
