@@ -46,7 +46,7 @@ CI_LAB_GlobalData_t CI_LAB_Global;
 /*            and acts accordingly to process them.                           */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * *  * * * * **/
-void CI_Lab_AppMain(void)
+void CI_LAB_AppMain(void)
 {
     int32            status;
     uint32           RunStatus = CFE_ES_RunStatus_APP_RUN;

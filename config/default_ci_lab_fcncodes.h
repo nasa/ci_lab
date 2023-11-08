@@ -35,7 +35,12 @@
 /*
 ** CI_LAB command codes
 */
-#define CI_LAB_NOOP_CC           0
-#define CI_LAB_RESET_COUNTERS_CC 1
+#define CI_LAB_NOOP_CC                 0
+#define CI_LAB_RESET_COUNTERS_CC       1
+#define CI_LAB_MODIFY_PDU_FILESIZE_CC  2
+#define CI_LAB_CORRUPT_PDU_CHECKSUM_CC 3
+#define CI_LAB_DROP_PDUS_CC            4
+#define CI_LAB_CAPTURE_PDUS_CC         5
+#define CI_LAB_STOP_PDU_CAPTURE_CC     6
 
 #endif
