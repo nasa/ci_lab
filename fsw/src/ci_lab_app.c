@@ -106,11 +106,34 @@ void CI_LAB_TaskInit(void)
 
     memset(&CI_LAB_Global, 0, sizeof(CI_LAB_Global));
 
-    CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY);
+    status = CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY);
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("CI_LAB: Error registering for Event Services, RC = 0x%08X\n", (unsigned int)status);
+    }
 
-    CFE_SB_CreatePipe(&CI_LAB_Global.CommandPipe, CI_LAB_PIPE_DEPTH, "CI_LAB_CMD_PIPE");
-    CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CI_LAB_CMD_MID), CI_LAB_Global.CommandPipe);
-    CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CI_LAB_SEND_HK_MID), CI_LAB_Global.CommandPipe);
+    status = CFE_SB_CreatePipe(&CI_LAB_Global.CommandPipe, CI_LAB_PIPE_DEPTH, "CI_LAB_CMD_PIPE");
+    if (status == CFE_SUCCESS)
+    {
+        status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CI_LAB_CMD_MID), CI_LAB_Global.CommandPipe);
+        if (status != CFE_SUCCESS)
+        {
+            CFE_EVS_SendEvent(CI_LAB_SB_SUBSCRIBE_CMD_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "Error subscribing to SB Commands, RC = 0x%08X", (unsigned int)status);
+        }
+
+        status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CI_LAB_SEND_HK_MID), CI_LAB_Global.CommandPipe);
+        if (status != CFE_SUCCESS)
+        {
+            CFE_EVS_SendEvent(CI_LAB_SB_SUBSCRIBE_HK_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "Error subscribing to SB HK Request, RC = 0x%08X", (unsigned int)status);
+        }
+    }
+    else
+    {
+        CFE_EVS_SendEvent(CI_LAB_CR_PIPE_ERR_EID, CFE_EVS_EventType_ERROR,
+                          "Error creating SB Command Pipe, RC = 0x%08X", (unsigned int)status);
+    }
 
     status = OS_SocketOpen(&CI_LAB_Global.SocketID, OS_SocketDomain_INET, OS_SocketType_DATAGRAM);
     if (status != OS_SUCCESS)
