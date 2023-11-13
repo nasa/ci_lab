@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: v2.5.0-rc4+dev69
+- add decode hooks
+- Add version information to NOOP event
+- See <https://github.com/nasa/ci_lab/pull/152> and <https://github.com/nasa/ci_lab/pull/153>
+
 ## Development Build: v2.5.0-rc4+dev51
 - reorganize source files
 - See <https://github.com/nasa/ci_lab/pull/148>
