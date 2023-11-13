@@ -29,6 +29,7 @@
 #include "ci_lab_perfids.h"
 #include "ci_lab_msgids.h"
 #include "ci_lab_version.h"
+#include "ci_lab_decode.h"
 
 /*
 ** CI Global Data
@@ -200,52 +201,52 @@ void CI_LAB_ResetCounters_Internal(void)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 void CI_LAB_ReadUpLink(void)
 {
-    int          i;
-    CFE_Status_t status;
-    uint8 *      bytes;
+    int   i;
+    int32 OsStatus;
+
+    CFE_Status_t     CfeStatus;
+    CFE_SB_Buffer_t *SBBufPtr;
 
     for (i = 0; i <= 10; i++)
     {
-        if (CI_LAB_Global.NextIngestBufPtr == NULL)
+        if (CI_LAB_Global.NetBufPtr == NULL)
         {
-            CI_LAB_Global.NextIngestBufPtr = CFE_SB_AllocateMessageBuffer(CI_LAB_MAX_INGEST);
-            if (CI_LAB_Global.NextIngestBufPtr == NULL)
-            {
-                CFE_EVS_SendEvent(CI_LAB_INGEST_ALLOC_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "CI: L%d, buffer allocation failed\n", __LINE__);
-                break;
-            }
+            CI_LAB_GetInputBuffer(&CI_LAB_Global.NetBufPtr, &CI_LAB_Global.NetBufSize);
         }
 
-        status = OS_SocketRecvFrom(CI_LAB_Global.SocketID, CI_LAB_Global.NextIngestBufPtr, CI_LAB_MAX_INGEST,
-                                   &CI_LAB_Global.SocketAddress, OS_CHECK);
-        if (status >= (int32)sizeof(CFE_MSG_CommandHeader_t) && status <= ((int32)CI_LAB_MAX_INGEST))
+        if (CI_LAB_Global.NetBufPtr == NULL)
+        {
+            break;
+        }
+
+        OsStatus = OS_SocketRecvFrom(CI_LAB_Global.SocketID, CI_LAB_Global.NetBufPtr, CI_LAB_Global.NetBufSize,
+                                     &CI_LAB_Global.SocketAddress, OS_CHECK);
+        if (OsStatus > 0)
         {
             CFE_ES_PerfLogEntry(CI_LAB_SOCKET_RCV_PERF_ID);
-            CI_LAB_Global.HkTlm.Payload.IngestPackets++;
-            status = CFE_SB_TransmitBuffer(CI_LAB_Global.NextIngestBufPtr, false);
+            CfeStatus = CI_LAB_DecodeInputMessage(CI_LAB_Global.NetBufPtr, OsStatus, &SBBufPtr);
+            if (CfeStatus != CFE_SUCCESS)
+            {
+                CI_LAB_Global.HkTlm.Payload.IngestErrors++;
+            }
+            else
+            {
+                CI_LAB_Global.HkTlm.Payload.IngestPackets++;
+                CfeStatus = CFE_SB_TransmitBuffer(SBBufPtr, false);
+            }
             CFE_ES_PerfLogExit(CI_LAB_SOCKET_RCV_PERF_ID);
 
-            if (status == CFE_SUCCESS)
+            if (CfeStatus == CFE_SUCCESS)
             {
                 /* Set NULL so a new buffer will be obtained next time around */
-                CI_LAB_Global.NextIngestBufPtr = NULL;
+                CI_LAB_Global.NetBufPtr  = NULL;
+                CI_LAB_Global.NetBufSize = 0;
             }
             else
             {
                 CFE_EVS_SendEvent(CI_LAB_INGEST_SEND_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "CI: L%d, CFE_SB_TransmitBuffer() failed, status=%d\n", __LINE__, (int)status);
+                                  "CI_LAB: Ingest failed, status=%d\n", (int)CfeStatus);
             }
-        }
-        else if (status > 0)
-        {
-            /* bad size, report as ingest error */
-            CI_LAB_Global.HkTlm.Payload.IngestErrors++;
-
-            bytes = CI_LAB_Global.NextIngestBufPtr->Msg.Byte;
-            CFE_EVS_SendEvent(CI_LAB_INGEST_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "CI: L%d, cmd %0x%0x %0x%0x dropped, bad length=%d\n", __LINE__, bytes[0], bytes[1],
-                              bytes[2], bytes[3], (int)status);
         }
         else
         {
