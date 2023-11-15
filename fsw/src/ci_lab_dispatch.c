@@ -122,6 +122,11 @@ void CI_LAB_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
             CI_LAB_SendHkCmd((const CI_LAB_SendHkCmd_t *)SBBufPtr);
             break;
 
+        case CI_LAB_READ_UPLINK_MID:
+            CI_LAB_Global.Scheduled = true;
+            CI_LAB_ReadUpLink();
+            break;
+
         default:
             CI_LAB_Global.HkTlm.Payload.CommandErrorCounter++;
             CFE_EVS_SendEvent(CI_LAB_MID_ERR_EID, CFE_EVS_EventType_ERROR, "CI: invalid command packet,MID = 0x%x",

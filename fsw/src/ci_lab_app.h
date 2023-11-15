@@ -53,6 +53,7 @@
 typedef struct
 {
     bool            SocketConnected;
+    bool            Scheduled;
     CFE_SB_PipeId_t CommandPipe;
     osal_id_t       SocketID;
     OS_SockAddr_t   SocketAddress;
