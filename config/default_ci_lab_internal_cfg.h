@@ -41,6 +41,21 @@
 #define CI_LAB_MAX_INGEST 768
 
 /**
+ * @brief Number of packets to process per ingest cycle
+ */
+#define CI_LAB_MAX_INGEST_PKTS 10
+
+/**
+ * @brief SB Receive timeout
+ */
+#define CI_LAB_SB_RECEIVE_TIMEOUT 500
+
+/**
+ * @brief Uplink Receive timeout
+ */
+#define CI_LAB_UPLINK_RECEIVE_TIMEOUT OS_CHECK
+
+/**
  * @brief The depth of the command input pipe
  *
  * This controls the depth of the SB input pipe

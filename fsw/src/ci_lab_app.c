@@ -64,8 +64,8 @@ void CI_LAB_AppMain(void)
     {
         CFE_ES_PerfLogExit(CI_LAB_MAIN_TASK_PERF_ID);
 
-        /* Pend on receipt of command packet -- timeout set to 500 millisecs */
-        status = CFE_SB_ReceiveBuffer(&SBBufPtr, CI_LAB_Global.CommandPipe, 500);
+        /* Receive SB buffer, configurable timeout */
+        status = CFE_SB_ReceiveBuffer(&SBBufPtr, CI_LAB_Global.CommandPipe, CI_LAB_SB_RECEIVE_TIMEOUT);
 
         CFE_ES_PerfLogEntry(CI_LAB_MAIN_TASK_PERF_ID);
 
@@ -207,7 +207,7 @@ void CI_LAB_ReadUpLink(void)
     CFE_Status_t     CfeStatus;
     CFE_SB_Buffer_t *SBBufPtr;
 
-    for (i = 0; i <= 10; i++)
+    for (i = 0; i <= CI_LAB_MAX_INGEST_PKTS; i++)
     {
         if (CI_LAB_Global.NetBufPtr == NULL)
         {
@@ -220,7 +220,7 @@ void CI_LAB_ReadUpLink(void)
         }
 
         OsStatus = OS_SocketRecvFrom(CI_LAB_Global.SocketID, CI_LAB_Global.NetBufPtr, CI_LAB_Global.NetBufSize,
-                                     &CI_LAB_Global.SocketAddress, OS_CHECK);
+                                     &CI_LAB_Global.SocketAddress, CI_LAB_UPLINK_RECEIVE_TIMEOUT);
         if (OsStatus > 0)
         {
             CFE_ES_PerfLogEntry(CI_LAB_SOCKET_RCV_PERF_ID);
