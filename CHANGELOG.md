@@ -1,5 +1,11 @@
 # Changelog
 
+## Development Build: v2.5.0-rc4+dev77
+- Remove unused PDU related function codes
+- Remove obsolete README comment
+- Configurable timeouts and loops
+- See <https://github.com/nasa/ci_lab/pull/157>, <https://github.com/nasa/ci_lab/pull/159>, and <https://github.com/nasa/ci_lab/pull/161>
+
 ## Development Build: v2.5.0-rc4+dev69
 - add decode hooks
 - Add version information to NOOP event
