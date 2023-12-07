@@ -17,6 +17,7 @@ set(CI_LAB_MISSION_CONFIG_FILE_LIST
   ci_lab_msgdefs.h
   ci_lab_msg.h
   ci_lab_msgstruct.h
+  ci_lab_topicids.h
 )
 
 if (CFE_EDS_ENABLED_BUILD)
