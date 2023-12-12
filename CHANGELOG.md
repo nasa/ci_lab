@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: v2.5.0-rc4_dev81
+- define msgids via topicids
+- See <https://github.com/nasa/ci_lab/pull/165>
+
 ## Development Build: v2.5.0-rc4+dev77
 - Remove unused PDU related function codes
 - Remove obsolete README comment
