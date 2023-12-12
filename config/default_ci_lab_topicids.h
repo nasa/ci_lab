@@ -18,16 +18,13 @@
 
 /**
  * @file
- *   CI_LAB Application Message IDs
+ *   CI_LAB Application Topic IDs
  */
-#ifndef CI_LAB_MSGIDS_H
-#define CI_LAB_MSGIDS_H
+#ifndef CI_LAB_TOPICIDS_H
+#define CI_LAB_TOPICIDS_H
 
-#include "cfe_core_api_base_msgids.h"
-#include "ci_lab_topicids.h"
-
-#define CI_LAB_CMD_MID     CFE_PLATFORM_CMD_TOPICID_TO_MIDV(CI_LAB_CMD_TOPICID)
-#define CI_LAB_SEND_HK_MID CFE_PLATFORM_CMD_TOPICID_TO_MIDV(CI_LAB_SEND_HK_TOPICID)
-#define CI_LAB_HK_TLM_MID  CFE_PLATFORM_TLM_TOPICID_TO_MIDV(CI_LAB_HK_TLM_TOPICID)
+#define CI_LAB_CMD_TOPICID     0x84
+#define CI_LAB_SEND_HK_TOPICID 0x85
+#define CI_LAB_HK_TLM_TOPICID  0x84
 
 #endif
