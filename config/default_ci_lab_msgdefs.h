@@ -18,14 +18,30 @@
 
 /**
  * @file
- *   Define CI Lab Message IDs
+ *   Specification for the CI_LAB command and telemetry
+ *   message constant definitions.
+ *
+ *  For CI_LAB this is only the function/command code definitions
  */
-#ifndef CI_LAB_MSGIDS_H
-#define CI_LAB_MSGIDS_H
+#ifndef CI_LAB_MSGDEFS_H
+#define CI_LAB_MSGDEFS_H
 
-#define CI_LAB_CMD_MID     0x1884
-#define CI_LAB_SEND_HK_MID 0x1885
+#include "ci_lab_fcncodes.h"
 
-#define CI_LAB_HK_TLM_MID 0x0884
+/*************************************************************************/
+/*
+** Payload definition (CI_LAB housekeeping)...
+*/
+typedef struct
+{
+    uint8  CommandErrorCounter;
+    uint8  CommandCounter;
+    uint8  EnableChecksums;
+    uint8  SocketConnected;
+    uint8  Spare1[8];
+    uint32 IngestPackets;
+    uint32 IngestErrors;
+    uint32 Spare2;
+} CI_LAB_HkTlm_Payload_t;
 
 #endif

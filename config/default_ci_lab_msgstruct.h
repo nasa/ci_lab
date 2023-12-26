@@ -18,26 +18,28 @@
 
 /**
  * @file
- *  Define CI Lab Messages and info
+ *   Specification for the CI_LAB command and telemetry
+ *   message data types.
+ *
+ * @note
+ *   Constants and enumerated types related to these message structures
+ *   are defined in ci_lab_msgdefs.h.
  */
-#ifndef CI_LAB_MSG_H
-#define CI_LAB_MSG_H
+#ifndef CI_LAB_MSGSTRUCT_H
+#define CI_LAB_MSGSTRUCT_H
 
-/*
-** CI_LAB command codes
-*/
-#define CI_LAB_NOOP_CC           0
-#define CI_LAB_RESET_COUNTERS_CC 1
+/************************************************************************
+ * Includes
+ ************************************************************************/
+
+#include "ci_lab_mission_cfg.h"
+#include "ci_lab_msgdefs.h"
+#include "cfe_msg_hdr.h"
 
 /*************************************************************************/
 /*
 ** Type definition (generic "no arguments" command)
 */
-typedef struct
-{
-    CFE_MSG_CommandHeader_t CmdHeader;
-
-} CI_LAB_NoArgsCmd_t;
 
 /*
  * Neither the Noop nor ResetCounters command
@@ -46,25 +48,20 @@ typedef struct
  *
  * This matches the pattern in CFE core and other modules.
  */
-typedef CI_LAB_NoArgsCmd_t CI_LAB_NoopCmd_t;
-typedef CI_LAB_NoArgsCmd_t CI_LAB_ResetCountersCmd_t;
-
-/*************************************************************************/
-/*
-** Type definition (CI_LAB housekeeping)...
-*/
 typedef struct
 {
-    uint8  CommandErrorCounter;
-    uint8  CommandCounter;
-    uint8  EnableChecksums;
-    uint8  SocketConnected;
-    uint8  Spare1[8];
-    uint32 IngestPackets;
-    uint32 IngestErrors;
-    uint32 Spare2;
+    CFE_MSG_CommandHeader_t CommandHeader;
+} CI_LAB_NoopCmd_t;
 
-} CI_LAB_HkTlm_Payload_t;
+typedef struct
+{
+    CFE_MSG_CommandHeader_t CommandHeader;
+} CI_LAB_ResetCountersCmd_t;
+
+typedef struct
+{
+    CFE_MSG_CommandHeader_t CommandHeader;
+} CI_LAB_SendHkCmd_t;
 
 typedef struct
 {
@@ -72,4 +69,4 @@ typedef struct
     CI_LAB_HkTlm_Payload_t    Payload;
 } CI_LAB_HkTlm_t;
 
-#endif
+#endif /* CI_LAB_MSGSTRUCT_H */
