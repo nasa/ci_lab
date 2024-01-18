@@ -74,8 +74,8 @@ void CI_LAB_AppMain(void)
             CI_LAB_TaskPipe(SBBufPtr);
         }
 
-        /* Regardless of packet vs timeout, always process uplink queue      */
-        if (CI_LAB_Global.SocketConnected)
+        /* Regardless of packet vs timeout, always process uplink queue if not scheduled */
+        if (CI_LAB_Global.SocketConnected && !CI_LAB_Global.Scheduled)
         {
             CI_LAB_ReadUpLink();
         }
@@ -128,6 +128,13 @@ void CI_LAB_TaskInit(void)
         {
             CFE_EVS_SendEvent(CI_LAB_SB_SUBSCRIBE_HK_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Error subscribing to SB HK Request, RC = 0x%08X", (unsigned int)status);
+        }
+
+        status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CI_LAB_READ_UPLINK_MID), CI_LAB_Global.CommandPipe);
+        if (status != CFE_SUCCESS)
+        {
+            CFE_EVS_SendEvent(CI_LAB_SB_SUBSCRIBE_UL_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "Error subscribing to SB Read Uplink Request, RC = 0x%08X", (unsigned int)status);
         }
     }
     else
