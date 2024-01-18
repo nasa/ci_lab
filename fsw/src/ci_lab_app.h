@@ -29,6 +29,7 @@
 #include "common_types.h"
 #include "osapi.h"
 #include "cfe.h"
+#include "cfe_config.h"
 
 #include "ci_lab_mission_cfg.h"
 #include "ci_lab_platform_cfg.h"

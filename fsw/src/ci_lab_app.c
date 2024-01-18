@@ -104,6 +104,7 @@ void CI_LAB_TaskInit(void)
 {
     int32  status;
     uint16 DefaultListenPort;
+    char VersionString[CI_LAB_CFG_MAX_VERSION_STR_LEN];
 
     memset(&CI_LAB_Global, 0, sizeof(CI_LAB_Global));
 
@@ -179,8 +180,11 @@ void CI_LAB_TaskInit(void)
     CFE_MSG_Init(CFE_MSG_PTR(CI_LAB_Global.HkTlm.TelemetryHeader), CFE_SB_ValueToMsgId(CI_LAB_HK_TLM_MID),
                  sizeof(CI_LAB_Global.HkTlm));
 
+    CFE_Config_GetVersionString(VersionString, CI_LAB_CFG_MAX_VERSION_STR_LEN, "CI Lab App",
+        CI_LAB_VERSION, CI_LAB_BUILD_CODENAME, CI_LAB_LAST_OFFICIAL);
+
     CFE_EVS_SendEvent(CI_LAB_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "CI Lab Initialized.%s",
-                      CI_LAB_VERSION_STRING);
+                      VersionString);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
