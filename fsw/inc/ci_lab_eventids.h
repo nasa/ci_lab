@@ -37,6 +37,7 @@
 #define CI_LAB_CR_PIPE_ERR_EID          11
 #define CI_LAB_SB_SUBSCRIBE_CMD_ERR_EID 12
 #define CI_LAB_SB_SUBSCRIBE_HK_ERR_EID  13
+#define CI_LAB_SB_SUBSCRIBE_UL_ERR_EID  14
 #define CI_LAB_CMD_LEN_ERR_EID          16
 
 #endif

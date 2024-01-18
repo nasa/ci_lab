@@ -1,5 +1,10 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev51
+- Support scheduled uplink check
+- updating ci_lab to use new versioning system
+- See <https://github.com/nasa/ci_lab/pull/162> and <https://github.com/nasa/ci_lab/pull/171>
+
 ## Development Build: v2.5.0-rc4_dev81
 - define msgids via topicids
 - See <https://github.com/nasa/ci_lab/pull/165>

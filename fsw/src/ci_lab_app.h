@@ -29,6 +29,7 @@
 #include "common_types.h"
 #include "osapi.h"
 #include "cfe.h"
+#include "cfe_config.h"
 
 #include "ci_lab_mission_cfg.h"
 #include "ci_lab_platform_cfg.h"
@@ -53,6 +54,7 @@
 typedef struct
 {
     bool            SocketConnected;
+    bool            Scheduled;
     CFE_SB_PipeId_t CommandPipe;
     osal_id_t       SocketID;
     OS_SockAddr_t   SocketAddress;
