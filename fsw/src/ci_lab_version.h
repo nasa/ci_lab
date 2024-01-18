@@ -37,6 +37,11 @@
 #define CI_LAB_MINOR_VERSION 3  /*!< @brief Minor version number */
 #define CI_LAB_REVISION      0  /*!< @brief Revision version number. Value of 0 indicates a development version.*/
 
+/**
+ * @brief Last official release.
+ */
+#define CI_LAB_LAST_OFFICIAL "v2.3.0"
+
 /*!
  * @brief Mission revision.
  *
@@ -60,6 +65,7 @@
  * 
  * Maximum length that a CI Lab version string can be.
  * 
+ */
 #define CI_LAB_CFG_MAX_VERSION_STR_LEN 256
 
 #endif
