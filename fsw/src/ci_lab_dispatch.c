@@ -123,8 +123,7 @@ void CI_LAB_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
             break;
 
         case CI_LAB_READ_UPLINK_MID:
-            CI_LAB_Global.Scheduled = true;
-            CI_LAB_ReadUpLink();
+            CI_LAB_ReadUplinkCmd((const CI_LAB_ReadUplinkCmd_t *)SBBufPtr);
             break;
 
         default:

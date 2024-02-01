@@ -40,14 +40,24 @@
 /*
  * Define a lookup table for CI lab command codes
  */
-static const CI_LAB_Application_Component_Telecommand_DispatchTable_t CI_LAB_TC_DISPATCH_TABLE = {
+/* clang-format off */
+static const CI_LAB_Application_Component_Telecommand_DispatchTable_t CI_LAB_TC_DISPATCH_TABLE =
+{
     .CMD =
-        {
-            .NoopCmd_indication          = CI_LAB_NoopCmd,
-            .ResetCountersCmd_indication = CI_LAB_ResetCountersCmd,
-
-        },
-    .SEND_HK = {.indication = CI_LAB_SendHkCmd}};
+    {
+        .NoopCmd_indication          = CI_LAB_NoopCmd,
+        .ResetCountersCmd_indication = CI_LAB_ResetCountersCmd,
+    },
+    .SEND_HK =
+    {
+        .indication = CI_LAB_SendHkCmd
+    },
+    .READ_UPLINK =
+    {
+        .indication = CI_LAB_ReadUplinkCmd
+    }
+};
+/* clang-format on */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 /*  Name:  CI_LAB_TaskPipe                                        */
