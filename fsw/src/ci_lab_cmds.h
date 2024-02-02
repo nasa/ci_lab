@@ -59,4 +59,19 @@ CFE_Status_t CI_LAB_ResetCountersCmd(const CI_LAB_ResetCountersCmd_t *cmd);
  */
 CFE_Status_t CI_LAB_SendHkCmd(const CI_LAB_SendHkCmd_t *cmd);
 
+/**
+ * @brief Read Uplink command packets
+ *
+ * This allows servicing of the CI_LAB uplink to be scheduled in a designated timeslot.
+ *
+ * For backward compatibility, CI_LAB will service the uplink periodically by default,
+ * using a local timeout.  However, if this message is sent by the system scheduler,
+ * CI_LAB will stop servicing based on the timeout and ONLY based on that command.
+ *
+ * @param cmd Input message pointer
+ * @returns CFE Status code
+ * @retval #CFE_SUCCESS on successful processing
+ */
+CFE_Status_t CI_LAB_ReadUplinkCmd(const CI_LAB_ReadUplinkCmd_t *cmd);
+
 #endif

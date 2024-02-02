@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev57
+- more complete definition of READ_UPLINK
+- See <https://github.com/nasa/ci_lab/pull/174>
+
 ## Development Build: equuleus-rc1+dev51
 - Support scheduled uplink check
 - updating ci_lab to use new versioning system
