@@ -25,7 +25,7 @@
 
 /* Development Build Macro Definitions */
 
-#define CI_LAB_BUILD_NUMBER     51 /*!< Development Build: Number of commits since baseline */
+#define CI_LAB_BUILD_NUMBER     57 /*!< Development Build: Number of commits since baseline */
 #define CI_LAB_BUILD_BASELINE   "equuleus-rc1" /*!< Development Build: git tag that is the base for the current development */
 #define CI_LAB_BUILD_DEV_CYCLE 	"equuleus-rc2" /**< @brief Development: Release name for current development cycle */
 #define CI_LAB_BUILD_CODENAME   "Equuleus" /**< @brief: Development: Code name for the current build */
