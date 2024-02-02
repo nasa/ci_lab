@@ -65,6 +65,11 @@ typedef struct
 
 typedef struct
 {
+    CFE_MSG_CommandHeader_t CommandHeader;
+} CI_LAB_ReadUplinkCmd_t;
+
+typedef struct
+{
     CFE_MSG_TelemetryHeader_t TelemetryHeader;
     CI_LAB_HkTlm_Payload_t    Payload;
 } CI_LAB_HkTlm_t;

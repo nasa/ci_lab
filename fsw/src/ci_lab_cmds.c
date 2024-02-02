@@ -75,3 +75,11 @@ CFE_Status_t CI_LAB_SendHkCmd(const CI_LAB_SendHkCmd_t *cmd)
     CFE_SB_TransmitMsg(CFE_MSG_PTR(CI_LAB_Global.HkTlm.TelemetryHeader), true);
     return CFE_SUCCESS;
 }
+
+CFE_Status_t CI_LAB_ReadUplinkCmd(const CI_LAB_ReadUplinkCmd_t *cmd)
+{
+    /* Any occurrence of this request will cause CI to read ONLY on this request thereafter */
+    CI_LAB_Global.Scheduled = true;
+    CI_LAB_ReadUpLink();
+    return CFE_SUCCESS;
+}
