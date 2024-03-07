@@ -39,6 +39,7 @@
 #include "cfe_mission_eds_parameters.h"
 #include "cfe_mission_eds_interface_parameters.h"
 
+#include "cfe_hdr_eds_datatypes.h"
 
 /*
  * ---------------------------------------
@@ -48,10 +49,10 @@
  */
 CFE_Status_t CI_LAB_GetInputBuffer(void **BufferOut, size_t *SizeOut)
 {
-    static CFE_HDR_CommandHeader_PackedBuffer_t InputBuffer;
+    static EdsPackedBuffer_CFE_HDR_CommandHeader_t InputBuffer;
 
     *BufferOut = &InputBuffer;
-    *SizeOut = sizeof(InputBuffer);
+    *SizeOut   = sizeof(InputBuffer);
 
     return CFE_SUCCESS;
 }
@@ -81,8 +82,8 @@ CFE_Status_t CI_LAB_DecodeInputMessage(void *SourceBuffer, size_t SourceSize, CF
 
     do
     {
-        EdsId            = EDSLIB_MAKE_ID(EDS_INDEX(CFE_HDR), CFE_HDR_CommandHeader_DATADICTIONARY);
-        EdsStatus           = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &CmdHdrInfo);
+        EdsId     = EDSLIB_MAKE_ID(EDS_INDEX(CFE_HDR), CFE_HDR_CommandHeader_DATADICTIONARY);
+        EdsStatus = EdsLib_DataTypeDB_GetTypeInfo(EDS_DB, EdsId, &CmdHdrInfo);
         if (EdsStatus != EDSLIB_SUCCESS)
         {
             OS_printf("EdsLib_DataTypeDB_GetTypeInfo(): %d\n", (int)EdsStatus);
@@ -93,28 +94,28 @@ CFE_Status_t CI_LAB_DecodeInputMessage(void *SourceBuffer, size_t SourceSize, CF
         BitSize = 8 * SourceSize;
         if (BitSize < CmdHdrInfo.Size.Bits)
         {
-            OS_printf("CI_LAB: Size mismatch, BitSize=%lu (packet) / %lu (min)\n",
-                (unsigned long)BitSize, (unsigned long)CmdHdrInfo.Size.Bits);
+            OS_printf("CI_LAB: Size mismatch, BitSize=%lu (packet) / %lu (min)\n", (unsigned long)BitSize,
+                      (unsigned long)CmdHdrInfo.Size.Bits);
 
             ResultStatus = CFE_STATUS_WRONG_MSG_LENGTH;
             break;
         }
 
         /* Now get a SB Buffer, as a place to put the decoded data */
-        IngestBufPtr = CFE_SB_AllocateMessageBuffer(sizeof(CFE_HDR_CommandHeader_Buffer_t));
+        IngestBufPtr = CFE_SB_AllocateMessageBuffer(sizeof(EdsNativeBuffer_CFE_HDR_CommandHeader_t));
         if (IngestBufPtr == NULL)
         {
             CFE_EVS_SendEvent(CI_LAB_INGEST_ALLOC_ERR_EID, CFE_EVS_EventType_ERROR,
-                                "CI_LAB: buffer allocation failed\n");
+                              "CI_LAB: buffer allocation failed\n");
 
             ResultStatus = CFE_SB_BUF_ALOC_ERR;
             break;
         }
 
         /* Packet is in external wire-format byte order - unpack it and copy */
-        EdsId = EDSLIB_MAKE_ID(EDS_INDEX(CFE_HDR), CFE_HDR_CommandHeader_DATADICTIONARY);
+        EdsId     = EDSLIB_MAKE_ID(EDS_INDEX(CFE_HDR), CFE_HDR_CommandHeader_DATADICTIONARY);
         EdsStatus = EdsLib_DataTypeDB_UnpackPartialObject(EDS_DB, &EdsId, IngestBufPtr, SourceBuffer,
-                                                    sizeof(CFE_HDR_CommandHeader_t), BitSize, 0);
+                                                          sizeof(EdsDataType_CFE_HDR_CommandHeader_t), BitSize, 0);
         if (EdsStatus != EDSLIB_SUCCESS)
         {
             OS_printf("EdsLib_DataTypeDB_UnpackPartialObject(1): %d\n", (int)EdsStatus);
@@ -125,8 +126,8 @@ CFE_Status_t CI_LAB_DecodeInputMessage(void *SourceBuffer, size_t SourceSize, CF
         CFE_MissionLib_Get_PubSub_Parameters(&PubSubParams, &IngestBufPtr->Msg.BaseMsg);
         CFE_MissionLib_UnmapListenerComponent(&ListenerParams, &PubSubParams);
 
-        EdsStatus = CFE_MissionLib_GetArgumentType(&CFE_SOFTWAREBUS_INTERFACE, CFE_SB_Telecommand_Interface_ID,
-                                                ListenerParams.Telecommand.TopicId, 1, 1, &EdsId);
+        EdsStatus = CFE_MissionLib_GetArgumentType(&CFE_SOFTWAREBUS_INTERFACE, EDS_INTERFACE_ID(CFE_SB_Telecommand),
+                                                   ListenerParams.Telecommand.TopicId, 1, 1, &EdsId);
         if (EdsStatus != CFE_MISSIONLIB_SUCCESS)
         {
             OS_printf("CFE_MissionLib_GetArgumentType(): %d\n", (int)EdsStatus);
@@ -134,7 +135,8 @@ CFE_Status_t CI_LAB_DecodeInputMessage(void *SourceBuffer, size_t SourceSize, CF
         }
 
         EdsStatus = EdsLib_DataTypeDB_UnpackPartialObject(EDS_DB, &EdsId, IngestBufPtr, SourceBuffer,
-                sizeof(CFE_HDR_CommandHeader_Buffer_t), BitSize, sizeof(CFE_HDR_CommandHeader_t));
+                                                          sizeof(EdsNativeBuffer_CFE_HDR_CommandHeader_t), BitSize,
+                                                          sizeof(EdsDataType_CFE_HDR_CommandHeader_t));
         if (EdsStatus != EDSLIB_SUCCESS)
         {
             OS_printf("EdsLib_DataTypeDB_UnpackPartialObject(2): %d\n", (int)EdsStatus);
@@ -143,7 +145,7 @@ CFE_Status_t CI_LAB_DecodeInputMessage(void *SourceBuffer, size_t SourceSize, CF
 
         /* Verify that the checksum and basic fields are correct, and recompute the length entry */
         EdsStatus = EdsLib_DataTypeDB_VerifyUnpackedObject(EDS_DB, EdsId, IngestBufPtr, SourceBuffer,
-                    EDSLIB_DATATYPEDB_RECOMPUTE_LENGTH);
+                                                           EDSLIB_DATATYPEDB_RECOMPUTE_LENGTH);
         if (EdsStatus != EDSLIB_SUCCESS)
         {
             OS_printf("EdsLib_DataTypeDB_VerifyUnpackedObject(): %d\n", (int)EdsStatus);
@@ -152,8 +154,7 @@ CFE_Status_t CI_LAB_DecodeInputMessage(void *SourceBuffer, size_t SourceSize, CF
 
         /* Finally - at this point, we should have a fully decoded buffer */
         ResultStatus = CFE_SUCCESS;
-    }
-    while(false);
+    } while (false);
 
     if (ResultStatus != CFE_SUCCESS && IngestBufPtr != NULL)
     {
