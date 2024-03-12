@@ -1,5 +1,9 @@
 # Changelog
 
+## Development Build: equuleus-rc1+dev61
+- apply name changes to EDS dispatcher
+- See <https://github.com/nasa/ci_lab/pull/177>
+
 ## Development Build: equuleus-rc1+dev57
 - more complete definition of READ_UPLINK
 - See <https://github.com/nasa/ci_lab/pull/174>
