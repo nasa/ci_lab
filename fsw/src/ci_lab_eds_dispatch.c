@@ -76,8 +76,6 @@ void CI_LAB_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
     CFE_SB_MsgId_t MsgId;
     CFE_Status_t   Status;
 
-    CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MsgId);
-
     Status = EdsDispatch_CI_LAB_Application_Telecommand(SBBufPtr, &CI_LAB_TC_DISPATCH_TABLE);
 
     if (Status != CFE_SUCCESS)

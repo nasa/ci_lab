@@ -218,7 +218,7 @@ void CI_LAB_ReadUpLink(void)
     CFE_Status_t     CfeStatus;
     CFE_SB_Buffer_t *SBBufPtr;
 
-    for (i = 0; i <= CI_LAB_MAX_INGEST_PKTS; i++)
+    for (i = 0; i < CI_LAB_MAX_INGEST_PKTS; i++)
     {
         if (CI_LAB_Global.NetBufPtr == NULL)
         {
