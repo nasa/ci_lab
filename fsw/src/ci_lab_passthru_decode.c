@@ -84,8 +84,10 @@ CFE_Status_t CI_LAB_DecodeInputMessage(void *SourceBuffer, size_t SourceSize, CF
         MsgBufPtr = NULL;
         Status    = CFE_STATUS_WRONG_MSG_LENGTH;
 
-        CFE_EVS_SendEvent(CI_LAB_INGEST_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "CI: cmd dropped, bad packet length=%lu\n", (unsigned long)SourceSize);
+        CFE_EVS_SendEvent(CI_LAB_INGEST_LEN_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "CI: cmd dropped, bad packet length=%lu\n",
+                          (unsigned long)SourceSize);
     }
     else
     {
@@ -98,8 +100,10 @@ CFE_Status_t CI_LAB_DecodeInputMessage(void *SourceBuffer, size_t SourceSize, CF
         {
             Status = CFE_STATUS_WRONG_MSG_LENGTH;
 
-            CFE_EVS_SendEvent(CI_LAB_INGEST_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "CI: cmd dropped - length mismatch, %lu (hdr) / %lu (packet)\n", (unsigned long)MsgSize,
+            CFE_EVS_SendEvent(CI_LAB_INGEST_LEN_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "CI: cmd dropped - length mismatch, %lu (hdr) / %lu (packet)\n",
+                              (unsigned long)MsgSize,
                               (unsigned long)SourceSize);
         }
         else

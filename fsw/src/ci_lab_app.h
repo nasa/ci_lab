@@ -62,7 +62,7 @@ typedef struct
 
     CI_LAB_HkTlm_t HkTlm;
 
-    void * NetBufPtr;
+    void  *NetBufPtr;
     size_t NetBufSize;
 
 } CI_LAB_GlobalData_t;
