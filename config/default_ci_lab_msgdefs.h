@@ -36,10 +36,8 @@ typedef struct
     uint8  CommandErrorCounter;
     uint8  EnableChecksums;
     uint8  SocketConnected;
-    uint8  Spare1[8];
     uint32 IngestPackets;
     uint32 IngestErrors;
-    uint32 Spare2;
 } CI_LAB_HkTlm_Payload_t;
 
 #endif
