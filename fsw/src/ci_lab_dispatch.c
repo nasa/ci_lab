@@ -92,7 +92,6 @@ void CI_LAB_ProcessGroundCommand(const CFE_SB_Buffer_t *SBBufPtr)
             }
             break;
 
-        /* default case already found during FC vs length test */
         default:
             break;
     }
