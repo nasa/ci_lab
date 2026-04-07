@@ -122,34 +122,44 @@ void CI_LAB_TaskInit(void)
         status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CI_LAB_CMD_MID), CI_LAB_Global.CommandPipe);
         if (status != CFE_SUCCESS)
         {
-            CFE_EVS_SendEvent(CI_LAB_SB_SUBSCRIBE_CMD_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Error subscribing to SB Commands, RC = 0x%08X", (unsigned int)status);
+            CFE_EVS_SendEvent(CI_LAB_SB_SUBSCRIBE_CMD_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Error subscribing to SB Commands, RC = 0x%08X",
+                              (unsigned int)status);
         }
 
         status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CI_LAB_SEND_HK_MID), CI_LAB_Global.CommandPipe);
         if (status != CFE_SUCCESS)
         {
-            CFE_EVS_SendEvent(CI_LAB_SB_SUBSCRIBE_HK_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Error subscribing to SB HK Request, RC = 0x%08X", (unsigned int)status);
+            CFE_EVS_SendEvent(CI_LAB_SB_SUBSCRIBE_HK_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Error subscribing to SB HK Request, RC = 0x%08X",
+                              (unsigned int)status);
         }
 
         status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CI_LAB_READ_UPLINK_MID), CI_LAB_Global.CommandPipe);
         if (status != CFE_SUCCESS)
         {
-            CFE_EVS_SendEvent(CI_LAB_SB_SUBSCRIBE_UL_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Error subscribing to SB Read Uplink Request, RC = 0x%08X", (unsigned int)status);
+            CFE_EVS_SendEvent(CI_LAB_SB_SUBSCRIBE_UL_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Error subscribing to SB Read Uplink Request, RC = 0x%08X",
+                              (unsigned int)status);
         }
     }
     else
     {
-        CFE_EVS_SendEvent(CI_LAB_CR_PIPE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Error creating SB Command Pipe, RC = 0x%08X", (unsigned int)status);
+        CFE_EVS_SendEvent(CI_LAB_CR_PIPE_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Error creating SB Command Pipe, RC = 0x%08X",
+                          (unsigned int)status);
     }
 
     status = OS_SocketOpen(&CI_LAB_Global.SocketID, OS_SocketDomain_INET, OS_SocketType_DATAGRAM);
     if (status != OS_SUCCESS)
     {
-        CFE_EVS_SendEvent(CI_LAB_SOCKETCREATE_ERR_EID, CFE_EVS_EventType_ERROR, "CI: create socket failed = %d",
+        CFE_EVS_SendEvent(CI_LAB_SOCKETCREATE_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "CI: create socket failed = %d",
                           (int)status);
     }
     else
@@ -162,7 +172,9 @@ void CI_LAB_TaskInit(void)
 
         if (status != OS_SUCCESS)
         {
-            CFE_EVS_SendEvent(CI_LAB_SOCKETBIND_ERR_EID, CFE_EVS_EventType_ERROR, "CI: bind socket failed = %d",
+            CFE_EVS_SendEvent(CI_LAB_SOCKETBIND_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "CI: bind socket failed = %d",
                               (int)status);
         }
         else
@@ -179,11 +191,16 @@ void CI_LAB_TaskInit(void)
     */
     OS_TaskInstallDeleteHandler(&CI_LAB_delete_callback);
 
-    CFE_MSG_Init(CFE_MSG_PTR(CI_LAB_Global.HkTlm.TelemetryHeader), CFE_SB_ValueToMsgId(CI_LAB_HK_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CI_LAB_Global.HkTlm.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CI_LAB_HK_TLM_MID),
                  sizeof(CI_LAB_Global.HkTlm));
 
-    CFE_Config_GetVersionString(VersionString, CI_LAB_CFG_MAX_VERSION_STR_LEN, "CI Lab App", CI_LAB_VERSION,
-                                CI_LAB_BUILD_CODENAME, CI_LAB_LAST_OFFICIAL);
+    CFE_Config_GetVersionString(VersionString,
+                                CI_LAB_CFG_MAX_VERSION_STR_LEN,
+                                "CI Lab App",
+                                CI_LAB_VERSION,
+                                CI_LAB_BUILD_CODENAME,
+                                CI_LAB_LAST_OFFICIAL);
 
     CFE_EVS_SendEvent(CI_LAB_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "CI Lab Initialized.%s", VersionString);
 }
@@ -231,8 +248,11 @@ void CI_LAB_ReadUpLink(void)
             break;
         }
 
-        OsStatus = OS_SocketRecvFrom(CI_LAB_Global.SocketID, CI_LAB_Global.NetBufPtr, CI_LAB_Global.NetBufSize,
-                                     &CI_LAB_Global.SocketAddress, CI_LAB_PLATFORM_UPLINK_RECEIVE_TIMEOUT);
+        OsStatus = OS_SocketRecvFrom(CI_LAB_Global.SocketID,
+                                     CI_LAB_Global.NetBufPtr,
+                                     CI_LAB_Global.NetBufSize,
+                                     &CI_LAB_Global.SocketAddress,
+                                     CI_LAB_PLATFORM_UPLINK_RECEIVE_TIMEOUT);
         if (OsStatus > 0)
         {
             CFE_ES_PerfLogEntry(CI_LAB_SOCKET_RCV_PERF_ID);
@@ -256,8 +276,10 @@ void CI_LAB_ReadUpLink(void)
             }
             else
             {
-                CFE_EVS_SendEvent(CI_LAB_INGEST_SEND_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "CI_LAB: Ingest failed, status=%d\n", (int)CfeStatus);
+                CFE_EVS_SendEvent(CI_LAB_INGEST_SEND_ERR_EID,
+                                  CFE_EVS_EventType_ERROR,
+                                  "CI_LAB: Ingest failed, status=%d\n",
+                                  (int)CfeStatus);
             }
         }
         else
