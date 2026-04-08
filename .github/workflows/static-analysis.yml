@@ -15,4 +15,4 @@ on:
 jobs:
   static-analysis:
     name: Static Analysis
-    uses: nasa/cFS/.github/workflows/static-analysis.yml@main
+    uses: nasa/cFS/.github/workflows/app-static-analysis-reusable.yml@dev
