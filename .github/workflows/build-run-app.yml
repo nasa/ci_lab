@@ -17,4 +17,6 @@ on:
 jobs:
   build-run:
     name: Build and run with startup msg verification
-    uses: nasa/cFS/.github/workflows/build-run-app-reusable.yml@dev
+    uses: jphickey/cFS/.github/workflows/build-run-app-reusable.yml@fix-998-workflow-config
+    with:
+      eds-enabled: true
