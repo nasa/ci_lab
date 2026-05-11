@@ -84,7 +84,9 @@ void CI_LAB_TaskPipe(const CFE_SB_Buffer_t *SBBufPtr)
     {
         CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MsgId);
         CI_LAB_Global.HkTlm.Payload.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CI_LAB_MID_ERR_EID, CFE_EVS_EventType_ERROR, "CI: invalid command packet,MID = 0x%x",
+        CFE_EVS_SendEvent(CI_LAB_MID_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "CI: invalid command packet,MID = 0x%x",
                           (unsigned int)CFE_SB_MsgIdToValue(MsgId));
     }
 

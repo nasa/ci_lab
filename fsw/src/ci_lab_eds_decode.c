@@ -66,8 +66,10 @@ CFE_Status_t CI_LAB_GetInputBuffer(void **BufferOut, size_t *SizeOut)
  * the app the command is associated with is not in EDS.
  * ---------------------------------------
  */
-CFE_Status_t CI_LAB_DecodeInputHeader(CFE_SB_Buffer_t *IngestBufPtr, const void *SourceBuffer,
-                                      const EdsLib_SizeInfo_t *MaxSize, EdsLib_SizeInfo_t *ProcessedSize)
+CFE_Status_t CI_LAB_DecodeInputHeader(CFE_SB_Buffer_t         *IngestBufPtr,
+                                      const void              *SourceBuffer,
+                                      const EdsLib_SizeInfo_t *MaxSize,
+                                      EdsLib_SizeInfo_t       *ProcessedSize)
 {
     EdsLib_Id_t                  EdsId;
     int32                        EdsStatus;
@@ -86,7 +88,8 @@ CFE_Status_t CI_LAB_DecodeInputHeader(CFE_SB_Buffer_t *IngestBufPtr, const void 
     else if (MaxSize->Bits < CmdHdrInfo.Size.Bits)
     {
         /* sanity check - validate the incoming packet is at least the size of a command header */
-        OS_printf("CI_LAB: Size mismatch, BitSize=%lu (packet) / %lu (min)\n", (unsigned long)MaxSize->Bits,
+        OS_printf("CI_LAB: Size mismatch, BitSize=%lu (packet) / %lu (min)\n",
+                  (unsigned long)MaxSize->Bits,
                   (unsigned long)CmdHdrInfo.Size.Bits);
 
         ResultStatus = CFE_STATUS_WRONG_MSG_LENGTH;
@@ -94,7 +97,11 @@ CFE_Status_t CI_LAB_DecodeInputHeader(CFE_SB_Buffer_t *IngestBufPtr, const void 
     else
     {
         /* Packet is in external wire-format byte order - unpack it and copy */
-        EdsStatus = EdsLib_DataTypeDB_UnpackPartialObjectVarSize(EDS_DB, &EdsId, IngestBufPtr, SourceBuffer, MaxSize,
+        EdsStatus = EdsLib_DataTypeDB_UnpackPartialObjectVarSize(EDS_DB,
+                                                                 &EdsId,
+                                                                 IngestBufPtr,
+                                                                 SourceBuffer,
+                                                                 MaxSize,
                                                                  ProcessedSize);
         if (EdsStatus != EDSLIB_SUCCESS)
         {
@@ -116,9 +123,11 @@ CFE_Status_t CI_LAB_DecodeInputHeader(CFE_SB_Buffer_t *IngestBufPtr, const void 
  * This is only possible if the app has an EDS.
  * ---------------------------------------
  */
-CFE_Status_t CI_LAB_DecodeInputPayload(CFE_SB_Buffer_t *IngestBufPtr, EdsLib_Id_t ParentIntfId,
-                                       const void *SourceBuffer, const EdsLib_SizeInfo_t *MaxSize,
-                                       EdsLib_SizeInfo_t *ProcessedSize)
+CFE_Status_t CI_LAB_DecodeInputPayload(CFE_SB_Buffer_t         *IngestBufPtr,
+                                       EdsLib_Id_t              ParentIntfId,
+                                       const void              *SourceBuffer,
+                                       const EdsLib_SizeInfo_t *MaxSize,
+                                       EdsLib_SizeInfo_t       *ProcessedSize)
 {
     EdsLib_Id_t  EdsId;
     int32        EdsStatus;
@@ -144,7 +153,11 @@ CFE_Status_t CI_LAB_DecodeInputPayload(CFE_SB_Buffer_t *IngestBufPtr, EdsLib_Id_
          * For example, on the CI_LAB_CMD interface, the previous lookup would have
          * yielded the EdsId of CI_LAB/CommandBase, but this will update the EdsId
          * to e.g. CI_LAB/NoopCmd (with NoopCmd being the same size as CommandBase) */
-        EdsStatus = EdsLib_DataTypeDB_UnpackPartialObjectVarSize(EDS_DB, &EdsId, IngestBufPtr, SourceBuffer, MaxSize,
+        EdsStatus = EdsLib_DataTypeDB_UnpackPartialObjectVarSize(EDS_DB,
+                                                                 &EdsId,
+                                                                 IngestBufPtr,
+                                                                 SourceBuffer,
+                                                                 MaxSize,
                                                                  ProcessedSize);
         if (EdsStatus != EDSLIB_SUCCESS)
         {
@@ -156,8 +169,12 @@ CFE_Status_t CI_LAB_DecodeInputPayload(CFE_SB_Buffer_t *IngestBufPtr, EdsLib_Id_
     if (ResultStatus == CFE_SUCCESS)
     {
         /* Verify that the checksum and basic fields are correct, and recompute the length entry */
-        EdsStatus = EdsLib_DataTypeDB_VerifyUnpackedObjectVarSize(EDS_DB, EdsId, IngestBufPtr, SourceBuffer,
-                                                                  EDSLIB_DATATYPEDB_RECOMPUTE_LENGTH, ProcessedSize);
+        EdsStatus = EdsLib_DataTypeDB_VerifyUnpackedObjectVarSize(EDS_DB,
+                                                                  EdsId,
+                                                                  IngestBufPtr,
+                                                                  SourceBuffer,
+                                                                  EDSLIB_DATATYPEDB_RECOMPUTE_LENGTH,
+                                                                  ProcessedSize);
         if (EdsStatus != EDSLIB_SUCCESS)
         {
             OS_printf("EdsLib_DataTypeDB_VerifyUnpackedObject(): %d\n", (int)EdsStatus);
@@ -175,10 +192,12 @@ CFE_Status_t CI_LAB_DecodeInputPayload(CFE_SB_Buffer_t *IngestBufPtr, EdsLib_Id_
  * if the application does not have an EDS.  The bits will be copied verbatim.
  * ---------------------------------------
  */
-CFE_Status_t CI_LAB_PassthruInputPayload(CFE_SB_Buffer_t *IngestBufPtr, const void *SourceBuffer,
-                                         const EdsLib_SizeInfo_t *MaxSize, EdsLib_SizeInfo_t *ProcessedSize)
+CFE_Status_t CI_LAB_PassthruInputPayload(CFE_SB_Buffer_t         *IngestBufPtr,
+                                         const void              *SourceBuffer,
+                                         const EdsLib_SizeInfo_t *MaxSize,
+                                         EdsLib_SizeInfo_t       *ProcessedSize)
 {
-    uint8 *      Dest;
+    uint8       *Dest;
     const uint8 *Src;
     size_t       HeaderSize;
     size_t       TotalSize;
@@ -201,7 +220,7 @@ CFE_Status_t CI_LAB_PassthruInputPayload(CFE_SB_Buffer_t *IngestBufPtr, const vo
             Src  = (const uint8 *)SourceBuffer;
 
             Dest += ProcessedSize->Bytes;
-            Src += HeaderSize;
+            Src  += HeaderSize;
 
             memcpy(Dest, Src, TotalSize - HeaderSize);
         }
@@ -229,7 +248,7 @@ CFE_Status_t CI_LAB_DecodeInputMessage(void *SourceBuffer, size_t SourceSize, CF
     CFE_SB_SoftwareBus_PubSub_Interface_t PubSubParams;
     CFE_SB_Listener_Component_t           ListenerParams;
     CFE_MissionLib_TopicInfo_t            TopicInfo;
-    CFE_SB_Buffer_t *                     IngestBufPtr;
+    CFE_SB_Buffer_t                      *IngestBufPtr;
     CFE_Status_t                          ResultStatus;
     EdsLib_SizeInfo_t                     MaxSize;
     EdsLib_SizeInfo_t                     ProcessedSize;
@@ -279,7 +298,8 @@ CFE_Status_t CI_LAB_DecodeInputMessage(void *SourceBuffer, size_t SourceSize, CF
         }
         else
         {
-            OS_printf("CI_LAB_DecodeInputMessage(): No EDS definition for TopicId=%u\n", (unsigned int)ListenerParams.Telecommand.TopicId);
+            OS_printf("CI_LAB_DecodeInputMessage(): No EDS definition for TopicId=%u\n",
+                      (unsigned int)ListenerParams.Telecommand.TopicId);
             ResultStatus = CFE_STATUS_VALIDATION_FAILURE;
         }
     }

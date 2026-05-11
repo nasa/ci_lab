@@ -22,3 +22,5 @@ set(CI_LAB_MISSION_CONFIG_FILE_LIST
 
 generate_configfile_set(${CI_LAB_MISSION_CONFIG_FILE_LIST})
 
+# The same test script can be utilized on all targets that run this app
+add_cfe_app_test(${ci_lab_MISSION_DIR}/tests/ci_lab_test_methods.py)
