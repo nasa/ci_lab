@@ -72,6 +72,7 @@ bool CI_LAB_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLeng
 void CI_LAB_ProcessGroundCommand(const CFE_SB_Buffer_t *SBBufPtr)
 {
     CFE_MSG_FcnCode_t FcnCode = 0;
+    CFE_SB_MsgId_t    MsgId   = CFE_SB_INVALID_MSG_ID;
 
     CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &FcnCode);
 
@@ -93,6 +94,13 @@ void CI_LAB_ProcessGroundCommand(const CFE_SB_Buffer_t *SBBufPtr)
             break;
 
         default:
+            CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MsgId);
+            CFE_EVS_SendEvent(CI_LAB_CC_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "Invalid ground command code: ID = 0x%08lX, CC = %d",
+                              (unsigned long)CFE_SB_MsgIdToValue(MsgId),
+                              (int)FcnCode);
+            CI_LAB_Global.HkTlm.Payload.CommandErrorCounter++;
             break;
     }
 }
