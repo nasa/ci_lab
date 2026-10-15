@@ -92,11 +92,12 @@ CFE_Status_t CI_LAB_DecodeInputMessage(void *SourceBuffer, size_t SourceSize, CF
     else
     {
         MsgBufPtr = SourceBuffer;
+        MsgSize   = 0;
 
         /* Check the size from within the header itself, compare against network buffer size */
-        CFE_MSG_GetSize(&MsgBufPtr->Msg, &MsgSize);
+        Status = CFE_MSG_GetSize(&MsgBufPtr->Msg, &MsgSize);
 
-        if (MsgSize > SourceSize)
+        if ((Status == CFE_SUCCESS) && (MsgSize > SourceSize))
         {
             Status = CFE_STATUS_WRONG_MSG_LENGTH;
 
@@ -105,10 +106,6 @@ CFE_Status_t CI_LAB_DecodeInputMessage(void *SourceBuffer, size_t SourceSize, CF
                               "CI: cmd dropped - length mismatch, %lu (hdr) / %lu (packet)\n",
                               (unsigned long)MsgSize,
                               (unsigned long)SourceSize);
-        }
-        else
-        {
-            Status = CFE_SUCCESS;
         }
     }
 
