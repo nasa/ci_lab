@@ -25,17 +25,16 @@
 
 /* Development Build Macro Definitions */
 
-#define CI_LAB_BUILD_NUMBER    1        /*!< Development Build: Number of commits since baseline */
-#define CI_LAB_BUILD_BASELINE  "v7.0.1" /*!< Development Build: git tag that is the base for the current development */
-#define CI_LAB_BUILD_DEV_CYCLE "v7.0.1" /**< @brief Development: Release name for current development cycle */
-#define CI_LAB_BUILD_CODENAME  "Draco"  /**< @brief: Development: Code name for the current build */
+#define CI_LAB_BUILD_NUMBER   1 /*!< Development Build: Number of commits since baseline */
+#define CI_LAB_BUILD_BASELINE "v7.0.2"
+#define CI_LAB_BUILD_CODENAME "Draco" /**< @brief: Development: Code name for the current build */
 
 /*
  * Version Macros, see \ref cfsversions for definitions.
  */
-#define CI_LAB_MAJOR_VERSION 7 /*!< @brief Major version number */
-#define CI_LAB_MINOR_VERSION 0 /*!< @brief Minor version number */
-#define CI_LAB_REVISION      1 /*!< @brief Revision version number. Value of 0 indicates a development version.*/
+#define CI_LAB_MAJOR_VERSION 7
+#define CI_LAB_MINOR_VERSION 0
+#define CI_LAB_REVISION      2
 
 /**
  * @brief Last official release.
@@ -58,7 +57,7 @@
  * @details Baseline git tag + Number of commits since baseline. @n
  * See @ref cfsversions for format differences between development and release versions.
  */
-#define CI_LAB_VERSION CI_LAB_BUILD_BASELINE "+dev" CI_LAB_STR(CI_LAB_BUILD_NUMBER)
+#define CI_LAB_VERSION CI_LAB_BUILD_BASELINE "-rc" CI_LAB_STR(CI_LAB_BUILD_NUMBER) "-oss"
 
 /**
  * @brief Max Version String length.
